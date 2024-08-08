@@ -1,0 +1,146 @@
+
+h9 {
+  color: #0000FF;
+  font-weight: 900;
+}
+
+h8 {
+  color: #FF0000;
+  font-weight: 900;
+}
+
+h5 {
+	margin:0px 0px 15px 0px;
+	padding:0px;
+	font-size:20px;
+	font-weight:900;
+	color:#ccc;
+    text-align:left;
+	}
+
+h6 {
+color: #434343;
+font-size:14px;
+  font-weight: 800;
+  padding:0;
+  margin:0;
+	}
+
+
+#installbox {
+  width:780px;
+  margin:auto;
+  height:auto;
+  position:relative;
+  float:left;
+}
+
+#installleft {
+  width:75%;
+  float:left;
+  position:relative;
+}
+
+#installright {
+  width:20%;
+  float:left;
+  position:relative;
+  margin-left:3%;
+  margin-top:40px;
+}
+
+input {
+	padding: 4px;
+	border:1px solid #000;
+	font: normal 1em/1.5em Verdana, sans-serif;
+	color:#777;
+    margin:3px;
+}
+
+#container {
+  position: relative;
+  width: 80%;
+  float:left;
+  left:10%;
+}
+
+#installmenu {
+background: #fff;
+ width: 100%;
+  position:relative;
+   float:left;
+   border-bottom:2px solid #059A9A;
+}
+
+#installtitle {
+background: #fff;
+ width: 100%;
+  position:relative;
+   float:left;
+   border-bottom:2px solid #059A9A;
+   margin-bottom:10px;
+}
+
+#sidebar1
+{position:relative; float:right; left:0; width:230px; height:220px; overflow:auto; margin-bottom:10px;}
+
+#license1
+{position:relative; float:left; width:70%; height:200px; overflow:auto; background:white; border: 2px solid black; margin-bottom:20px;}
+
+/* Table Bits */
+table#main {
+    background-color:#FFFFFF;
+    border: solid #ccc 2px;
+    width: 100%;
+    text-indent:0px;
+}
+
+
+
+
+table#main td {
+    padding: 5px;
+    border: solid #000 0px;
+
+}
+
+.internal {
+    color: #000000;
+    text-align: justify;
+    background-color: #FFFFFF;
+
+}
+
+.toprow {
+        text-align: center;
+    color:#FFFFFF;
+
+  font-weight: bold;
+  background-image: url(tblback2.jpg);
+  background-repeat: repeat-x;
+  background-color:#727272;
+}
+
+.oddrow {
+    text-align: left;
+    text-indent:0px;
+    color:#000000;
+    background-color: #eee;
+
+}
+
+.evenrow {
+    text-align: left;
+    text-indent:0px;
+    color:#000000;
+    background-color: #ccc;
+
+}
+
+.leftcol {
+    text-align: left;
+    width: auto;
+    border:0px;
+}
+
+/*End Table Bits*/
