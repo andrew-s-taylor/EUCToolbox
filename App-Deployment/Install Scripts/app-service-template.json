@@ -14,7 +14,14 @@
             "metadata": {
                 "description": "URL of the public git repository"
             },
-            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox/tree/main/App-Deployment/Webpage%20Content"
+            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
+        },
+                "gitsubdir": {
+            "type": "string",
+            "metadata": {
+                "description": "URL of the public git repository"
+            },
+            "defaultValue": "App-Deployment/Webpage Content"
         },
         "webhookCommunity": {
             "type": "string",
@@ -102,7 +109,7 @@
             "fileUris": [
                 "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Install%20Scripts/update-config.sh"
             ],
-            "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'))]"
+            "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'), ' ', parameters('gitRepoUrl'), ' ', parameters('gitsubdir'))]"
         }
     },
     "dependsOn": [
