@@ -114,7 +114,9 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[uri(parameters('_artifactsLocation'), 'update-config.sh', parameters('_artifactsLocationSasToken'))]"
+                        [
+                            "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Install%20Scripts/update-config.sh"
+                        ]
                     ],
                     "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'))]"
                 }
