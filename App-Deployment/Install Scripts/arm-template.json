@@ -184,7 +184,9 @@
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
           "properties": {
-              "contentLink": {}
+                "contentLink": {
+               "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/IntuneWin32App')]"
+                }
           }
       },
       {
@@ -195,7 +197,9 @@
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
           "properties": {
-              "contentLink": {}
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Authentication')]"
+              }
           }
       },
       {
@@ -206,7 +210,9 @@
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
           "properties": {
-              "contentLink": {}
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
+              }
           }
       },
       {
@@ -217,7 +223,9 @@
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
           "properties": {
-              "contentLink": {}
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.CorporateManagement')]"
+              }
           }
       },
       {
@@ -227,8 +235,10 @@
           "dependsOn": [
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
-          "properties": {
-              "contentLink": {}
+           "properties": {
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Groups')]"
+              }
           }
       },
       {
@@ -238,8 +248,10 @@
           "dependsOn": [
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
-          "properties": {
-              "contentLink": {}
+           "properties": {
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/powershell-yaml')]"
+              }
           }
       },
       {
@@ -249,8 +261,10 @@
           "dependsOn": [
               "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
           ],
-          "properties": {
-              "contentLink": {}
+           "properties": {
+              "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/SvRooij.ContentPrep.Cmdlet')]"
+              }
           }
       }
 ],
