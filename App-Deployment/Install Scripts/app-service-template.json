@@ -67,9 +67,8 @@
         "[parameters('appName')]"
     ],
     "properties": {
-        "packageUri": "<zip-package-uri>",
-        "type": "<type>",
-        "path": "<target-path>"
+        "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/App-Deployment/Webpage%20Content.zip",
+        "type": "zip"
     }
 }
 
