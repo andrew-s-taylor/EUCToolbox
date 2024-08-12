@@ -124,21 +124,8 @@
                             "name": "[parameters('webhookname1')]"  
                         }  
                     }  
-                }  
-            ]  
-        } ,
-        {  
-            "type": "Microsoft.Automation/automationAccounts",  
-            "apiVersion": "2020-01-13-preview",  
-            "name": "[parameters('automationAccountName')]",  
-            "location": "[parameters('automationRegion')]",  
-            "properties": {  
-                "sku": {  
-                    "name": "Free"  
-                }  
-            },  
-            "resources": [  
-                {  
+                },
+                                {  
                     "type": "runbooks",  
                     "apiVersion": "2018-06-30",  
                     "name": "[parameters('webhookname2')]",  
@@ -175,7 +162,7 @@
                 }  
             ]  
         } ,
-          {
+                  {
           "type": "Microsoft.Automation/automationAccounts/modules",
           "apiVersion": "2023-11-01",
           "name": "[concat(parameters('automationAccountName'), '/IntuneWin32App')]",
