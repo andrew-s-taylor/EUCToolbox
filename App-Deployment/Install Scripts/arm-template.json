@@ -43,14 +43,14 @@
     },
     "_artifactsLocation": {
         "type": "string",
-        "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook-manifest.ps1",
+        "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook.ps1",
         "metadata": {
             "description": "URI to artifacts location"
         }
     },
     "_artifactsLocation1": {
         "type": "string",
-        "defaultValue": "https://ABCD.visualstudio.com/3Pager/_git/Infrastructure?path=%2FAzure.Infra%2FAppInsights%2FMonthOverMonthTrendAnalysisReport.ps1&version=GBmaster",
+        "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook-manifest.ps1",
         "metadata": {
             "description": "URI to artifacts location"
         }
