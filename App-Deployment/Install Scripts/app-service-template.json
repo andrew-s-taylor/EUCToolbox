@@ -15,6 +15,36 @@
                 "description": "URL of the public git repository"
             },
             "defaultValue": "https://github.com/EUCToolbox/EUCToolbox/tree/main/App-Deployment/Webpage%20Content"
+        },
+        "webhookCommunity": {
+            "type": "string",
+            "metadata": {
+                "description": "Webhook URL for community deployment script"
+            }
+        },
+        "webhookManifest": {
+            "type": "string",
+            "metadata": {
+                "description": "Webhook URL for manifest deployment script"
+            }
+        },
+        "appID": {
+            "type": "string",
+            "metadata": {
+                "description": "Application ID"
+            }
+        },
+        "appSecret": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Application Secret"
+            }
+        },
+        "sendgridToken": {
+            "type": "securestring",
+            "metadata": {
+                "description": "SendGrid Token"
+            }
         }
     },
     "resources": [
@@ -59,19 +89,40 @@
             }
         },
         {
-  "type": "Microsoft.Web/sites/sourcecontrols",
-  "apiVersion": "2021-02-01",
-  "name": "[concat(parameters('appName'), '/web')]",
-  "properties": {
-    "repoUrl": "[parameters('gitRepoUrl')]",
-    "branch": "main",
-    "isManualIntegration": false,
-    "deploymentMethod": "GitHub"
-  },
-  "dependsOn": [
-    "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
-  ]
-}
+            "type": "Microsoft.Web/sites/sourcecontrols",
+            "apiVersion": "2021-02-01",
+            "name": "[concat(parameters('appName'), '/web')]",
+            "properties": {
+                "repoUrl": "[parameters('gitRepoUrl')]",
+                "branch": "main",
+                "isManualIntegration": false,
+                "deploymentMethod": "GitHub"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+            ]
+        },
+                {
+            "type": "Microsoft.Web/sites/extensions",
+            "apiVersion": "2019-08-01",
+            "name": "[concat(parameters('appName'), '/configScript')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[uri(parameters('_artifactsLocation'), 'update-config.sh', parameters('_artifactsLocationSasToken'))]"
+                    ],
+                    "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'))]"
+                }
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+            ]
+        }
 
     ],
     "variables": {
