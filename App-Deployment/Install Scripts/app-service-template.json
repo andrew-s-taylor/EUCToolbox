@@ -88,43 +88,41 @@
                 "name": "[variables('appServicePlanId')]"
             }
         },
-        {
-            "type": "Microsoft.Web/sites/sourcecontrols",
-            "apiVersion": "2021-02-01",
-            "name": "[concat(parameters('appName'), '/web')]",
-            "properties": {
-                "repoUrl": "[parameters('gitRepoUrl')]",
-                "branch": "main",
-                "isManualIntegration": false,
-                "deploymentMethod": "GitHub"
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
-            ]
-        },
-                {
-            "type": "Microsoft.Web/sites/extensions",
-            "apiVersion": "2019-08-01",
-            "name": "[concat(parameters('appName'), '/configScript')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "publisher": "Microsoft.Azure.Extensions",
-                "type": "CustomScript",
-                "typeHandlerVersion": "2.0",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "fileUris": [
-                        [
-                            "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Install%20Scripts/update-config.sh"
-                        ]
-                    ],
-                    "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'))]"
-                }
-            },
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
-            ]
+{
+    "type": "Microsoft.Web/sites/sourcecontrols",
+    "apiVersion": "2021-02-01",
+    "name": "[concat(parameters('appName'), '/web')]",
+    "properties": {
+        "repoUrl": "[parameters('gitRepoUrl')]",
+        "branch": "main",
+        "isManualIntegration": false,
+        "deploymentMethod": "LocalGit"
+    },
+    "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+    ]
+},
+{
+    "type": "Microsoft.Web/sites/extensions",
+    "apiVersion": "2019-08-01",
+    "name": "[concat(parameters('appName'), '/configScript')]",
+    "location": "[resourceGroup().location]",
+    "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.0",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+            "fileUris": [
+                "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Install%20Scripts/update-config.sh"
+            ],
+            "commandToExecute": "[concat('sh update-config.sh ', parameters('webhookCommunity'), ' ', parameters('webhookManifest'), ' ', parameters('appID'), ' ', parameters('appSecret'), ' ', parameters('sendgridToken'))]"
         }
+    },
+    "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+    ]
+}
 
     ],
     "variables": {
