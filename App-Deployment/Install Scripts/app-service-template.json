@@ -1,0 +1,65 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the app service"
+            },
+            "defaultValue": "AppDeploy-EUCToolbox"
+        },
+        "gitRepoUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "URL of the public git repository"
+            },
+            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox/tree/main/App-Deployment/Webpage%20Content"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-02-01",
+            "name": "[parameters('appName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "serverFarmId": "[variables('appServicePlanId')]",
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "WEBSITE_PHP_VERSION",
+                            "value": "7.4"
+                        }
+                    ]
+                },
+                "repositorySiteConfig": {
+                    "branch": "master",
+                    "repositoryUrl": "[parameters('gitRepoUrl')]"
+                }
+            },
+            "dependsOn": [
+                "[variables('appServicePlanId')]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2021-02-01",
+            "name": "[variables('appServicePlanId')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "tier": "Free",
+                "size": "F1",
+                "family": "F",
+                "capacity": 1
+            },
+            "properties": {
+                "name": "[variables('appServicePlanId')]"
+            }
+        }
+    ],
+    "variables": {
+        "appServicePlanId": "[concat('appServicePlan-', uniqueString(resourceGroup().id))]"
+    }
+}
