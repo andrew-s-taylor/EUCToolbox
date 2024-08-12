@@ -79,14 +79,14 @@
         "type": "string",
         "defaultValue": "Community App Deployment",
         "metadata": {
-            "description": "Webhook Name community"
+            "description": "Runbook Name community"
         }
     },
         "runbookname2": {
         "type": "string",
         "defaultValue": "Manifest App Deployment",
         "metadata": {
-            "description": "Webhook name manifest"
+            "description": "Runbook name manifest"
         }
     }
 },
@@ -129,13 +129,13 @@
                     "name": "[parameters('webhookname1')]",  
                     "dependsOn": [  
                         "[parameters('automationAccountName')]",  
-                        "[parameters('webhookname1')]"  
+                        "[parameters('runbookname1')]"  
                     ],  
                     "properties": {  
                         "isEnabled": true,  
                         "expiryTime": "[parameters('WebhookExpiryTime')]",  
                         "runbook": {  
-                            "name": "[parameters('webhookname1')]"  
+                            "name": "[parameters('runbookname1')]"  
                         }  
                     }  
                 },
@@ -164,13 +164,13 @@
                     "name": "[parameters('webhookname2')]",  
                     "dependsOn": [  
                         "[parameters('automationAccountName')]",  
-                        "[parameters('webhookname2')]"  
+                        "[parameters('runbookname2')]"  
                     ],  
                     "properties": {  
                         "isEnabled": true,  
                         "expiryTime": "[parameters('WebhookExpiryTime')]",  
                         "runbook": {  
-                            "name": "[parameters('webhookname2')]"  
+                            "name": "[parameters('runbookname2')]"  
                         }  
                     }  
                 }  
