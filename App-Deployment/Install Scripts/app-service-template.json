@@ -29,7 +29,7 @@
                 "serverFarmId": "[variables('appServicePlanId')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
-                    "linuxFxVersion": "PHP|8.1",
+                    "linuxFxVersion": "PHP|8.3",
                     "acrUseManagedIdentityCreds": false,
                     "alwaysOn": false,
                     "http20Enabled": false,
