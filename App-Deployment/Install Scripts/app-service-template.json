@@ -57,7 +57,22 @@
             "properties": {
                 "name": "[variables('appServicePlanId')]"
             }
-        }
+        },
+        {
+  "type": "Microsoft.Web/sites/sourcecontrols",
+  "apiVersion": "2021-02-01",
+  "name": "[concat(parameters('appName'), '/web')]",
+  "properties": {
+    "repoUrl": "[parameters('gitRepoUrl')]",
+    "branch": "main",
+    "isManualIntegration": false,
+    "deploymentMethod": "GitHub"
+  },
+  "dependsOn": [
+    "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+  ]
+}
+
     ],
     "variables": {
         "appServicePlanId": "[concat('appServicePlan-', uniqueString(resourceGroup().id))]"
