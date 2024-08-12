@@ -1,6 +1,6 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
     "parameters": {
         "automationAccountName": {
             "type": "string",
@@ -90,178 +90,89 @@
             }
         }
     },
-    "variables": {
-    },
-    "resources": [
-        {
-            "type": "Microsoft.Automation/automationAccounts",
-            "apiVersion": "2020-01-13-preview",
-            "name": "[parameters('automationAccountName')]",
-            "location": "[parameters('automationRegion')]",
-            "properties": {
-                "sku": {
-                    "name": "Free"
-                }
-            },
-            "resources": [
-                {
-                    "type": "runbooks",
-                    "apiVersion": "2018-06-30",
-                    "name": "[parameters('runbookname1')]",
-                    "location": "[parameters('automationRegion')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-                    ],
-                    "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "description": "Deploys Winget community apps",
-                        "publishContentLink": {
-                            "uri": "[parameters('_artifactsLocation')]"
-                        }
-                    }
-                },
-                {
-                    "type": "webhooks",
-                    "apiVersion": "2023-05-15-preview",
-                    "name": "[parameters('webhookname1')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"
-                    ],
-                    "properties": {
-                        "isEnabled": true,
-                        "expiryTime": "[parameters('webhookExpiryTime')]",
-                        "runbook": {
-                            "name": "[parameters('runbookname1')]"
-                        }
-                    }
-                },
-                {
-                    "type": "runbooks",
-                    "apiVersion": "2018-06-30",
-                    "name": "[parameters('runbookname2')]",
-                    "location": "[parameters('automationRegion')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-                    ],
-                    "properties": {
-                        "runbookType": "PowerShell",
-                        "logProgress": false,
-                        "logVerbose": false,
-                        "description": "Deploys Winget manifest apps",
-                        "publishContentLink": {
-                            "uri": "[parameters('_artifactsLocation1')]"
-                        }
-                    }
-                },
-                {
-                    "type": "webhooks",
-                    "apiVersion": "2023-05-15-preview",
-                    "name": "[parameters('webhookname2')]",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"
-                    ],
-                    "properties": {
-                        "isEnabled": true,
-                        "expiryTime": "[parameters('webhookExpiryTime')]",
-                        "runbook": {
-                            "name": "[parameters('runbookname2')]"
-                        }
-                    }
-                }
-            ]
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/IntuneWin32App')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/IntuneWin32App')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Authentication')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Authentication')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.DeviceManagement')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Groups')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Groups')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/powershell-yaml')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/powershell-yaml')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/SvRooij.ContentPrep.Cmdlet')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/SvRooij.ContentPrep.Cmdlet')]"
-                }
-            }
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[parameters('automationAccountName')]",
+      "location": "[parameters('automationRegion')]",
+      "properties": {
+        "sku": {
+          "name": "Free"
         }
-    ],
-    "outputs": {
-        "webhookUri": {
-            "type": "String",
-            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname1'))).uri]"
+      },
+      "resources": [
+        {
+          "type": "runbooks",
+          "apiVersion": "2018-06-30",
+          "name": "[parameters('runbookname1')]",
+          "location": "[parameters('automationRegion')]",
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Deploys Winget community apps",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation')]"
+            }
+          }
         },
-        "webhookUri2": {
-            "type": "String",
-            "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname2'))).uri]"
+        {
+          "type": "runbooks",
+          "apiVersion": "2018-06-30",
+          "name": "[parameters('runbookname2')]",
+          "location": "[parameters('automationRegion')]",
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Deploys Winget manifest apps",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation1')]"
+            }
+          }
+        },
+        {
+          "type": "webhooks",
+          "apiVersion": "2023-05-15-preview",
+          "name": "[parameters('webhookname1')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"
+          ],
+          "properties": {
+            "isEnabled": true,
+            "expiryTime": "[parameters('webhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname1')]"
+            }
+          }
+        },
+        {
+          "type": "webhooks",
+          "apiVersion": "2023-05-15-preview",
+          "name": "[parameters('webhookname2')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"
+          ],
+          "properties": {
+            "isEnabled": true,
+            "expiryTime": "[parameters('webhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname2')]"
+            }
+          }
         }
+      ]
     }
-
+  ],
+  "outputs": {
+    "webhookUri1": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname1'))).uri]"
+    },
+    "webhookUri2": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname2'))).uri]"
+    }
+  }
 }
