@@ -30,7 +30,6 @@
             "centralus",
             "northcentralus",
             "eastasia",
-            "southeastasia",
             "brazilsouth",
             "australiaeast",
             "australiacentral",
@@ -110,8 +109,7 @@
                     "name": "[parameters('runbookname1')]",  
             "location": "[parameters('automationRegion')]",  
                     "dependsOn": [  
-                        "[parameters('automationAccountName')]"  
-                    ],  
+ "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"                    ],  
                     "properties": {  
                         "runbookType": "PowerShell",  
                         "logProgress": false,  
@@ -127,9 +125,8 @@
                     "apiVersion": "2023-05-15-preview",  
                     "name": "[parameters('webhookname1')]",  
                     "dependsOn": [  
-                        "[parameters('automationAccountName')]",  
-                        "[parameters('runbookname1')]"  
-                    ],  
+ "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+  "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"                    ],  
                     "properties": {  
                         "isEnabled": true,  
                         "expiryTime": "[parameters('WebhookExpiryTime')]",  
@@ -144,8 +141,7 @@
                     "name": "[parameters('runbookname2')]",  
             "location": "[parameters('automationRegion')]",  
                     "dependsOn": [  
-                        "[parameters('automationAccountName')]"  
-                    ],  
+ "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"                    ],  
                     "properties": {  
                         "runbookType": "PowerShell",  
                         "logProgress": false,  
@@ -161,9 +157,8 @@
                     "apiVersion": "2023-05-15-preview",  
                     "name": "[parameters('webhookname2')]",  
                     "dependsOn": [  
-                        "[parameters('automationAccountName')]",  
-                        "[parameters('runbookname2')]"  
-                    ],  
+ "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+  "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"                    ],  
                     "properties": {  
                         "isEnabled": true,  
                         "expiryTime": "[parameters('WebhookExpiryTime')]",  
@@ -256,13 +251,12 @@
 "outputs": {
         "webhookUri": {  
             "type": "String",  
-            "value": "[reference(parameters('webhookname1')).uri]"
-        } ,
+"value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname1'))).uri]"
+        },
         "webhookUri2": {  
             "type": "String",  
-            "value": "[reference(parameters('webhookname2')).uri]"  
-        }  
-
+"value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname2'))).uri]"
+        }
 }
 
 }
