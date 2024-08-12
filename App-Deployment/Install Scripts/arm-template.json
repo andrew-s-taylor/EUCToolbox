@@ -116,11 +116,10 @@
                         "runbookType": "PowerShell",  
                         "logProgress": false,  
                         "logVerbose": false,  
-                        "description": "Deploys Winget community apps",  
-                        "publishContentLink": {  
-                            "uri": "[uri(parameters('_artifactsLocation'), 'scripts/WingetCommunity.ps1')]",  
-                            "version": "1.0.0.0"  
-                        }  
+                        "description": "Deploys Winget community apps",
+                        "publishContentLink": {
+                            "uri": "[parameters('_artifactsLocation')]"
+                        }
                     }  
                 },  
                 {  
@@ -152,10 +151,9 @@
                         "logProgress": false,  
                         "logVerbose": false,  
                         "description": "Deploys Winget manifest apps",  
-                        "publishContentLink": {  
-                            "uri": "[uri(parameters('_artifactsLocation1'), 'scripts/WingetManifest.ps1')]",  
-                            "version": "1.0.0.0"  
-                        }  
+                        "publishContentLink": {
+                            "uri": "[parameters('_artifactsLocation1')]"
+                        }
                     }  
                 },  
                 {  
@@ -212,19 +210,6 @@
           "properties": {
               "contentLink": {
                     "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
-              }
-          }
-      },
-      {
-          "type": "Microsoft.Automation/automationAccounts/modules",
-          "apiVersion": "2023-11-01",
-          "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Devices.CorporateManagement')]",
-          "dependsOn": [
-              "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-          ],
-          "properties": {
-              "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.CorporateManagement')]"
               }
           }
       },
