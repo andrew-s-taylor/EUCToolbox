@@ -17,6 +17,8 @@ if (!file_put_contents('config.php', $contents)) {
 }
 else {
     // Redirect to the same page to ensure the cookies are cleared
+    //Sleep for 10 seconds first
+    sleep(10);
     header("Location: index.php");
     exit();
 }
