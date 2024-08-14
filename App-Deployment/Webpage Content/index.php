@@ -1,5 +1,7 @@
 <?php
 include('config.php');
+
+
 $sitename = "App Deploy from EUC Toolbox";
 $pagetitle = "App Deploy";
 include "header.php";
@@ -11,6 +13,30 @@ include "header.php";
     });
 </script>
 <?php
+if (webhookcommunity == "COMMUNITYWEBHOOKHERE") {
+    ?>
+    <form action="update_config.php" method="post">
+        <label for="webhookcommunity">Community Webhook:</label>
+        <input type="text" id="webhookcommunity" name="webhookcommunity" required><br><br>
+        
+        <label for="webhookmanifest">Manifest Webhook:</label>
+        <input type="text" id="webhookmanifest" name="webhookmanifest" required><br><br>
+        
+        <label for="appid">App ID:</label>
+        <input type="text" id="eappid" name="eappid" required><br><br>
+        
+        <label for="appsecret">App Secret:</label>
+        <input type="text" id="eappsecret" name="eappsecret" required><br><br>
+        
+        <label for="sendgridkey">SendGrid Key:</label>
+        <input type="text" id="sendgridkey" name="sendgridkey" required><br><br>
+        
+        <input type="submit" value="Update Config">
+    </form>
+
+    <?php
+}
+else {
 //Check for any POST messages and if found, display them
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
@@ -236,6 +262,9 @@ foreach ($apps as $app){
     <tr><td class="tableButton" align="center"><input class="profile-btn" type="submit" value="Next"></td></tr>
     </form>
     </table>
+    <?php
+}
+?>
     </div>
             
     
