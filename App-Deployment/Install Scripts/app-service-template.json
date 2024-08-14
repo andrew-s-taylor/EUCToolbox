@@ -8,13 +8,6 @@
                 "description": "Name of the app service"
             },
             "defaultValue": "AppDeploy-EUCToolbox"
-        },
-        "gitRepoUrl": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the public git repository"
-            },
-            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
         }
     },
     "resources": [
@@ -24,7 +17,7 @@
             "apiVersion": "2021-02-01",
             "name": "[parameters('appName')]",
             "location": "[resourceGroup().location]",
-            "kind": "linux",
+            "kind": "app,linux",
             "properties": {
                 "serverFarmId": "[variables('appServicePlanId')]",
                 "siteConfig": {
@@ -35,10 +28,6 @@
                     "http20Enabled": false,
                     "functionAppScaleLimit": 0,
                     "minimumElasticInstanceCount": 1
-                },
-                "repositorySiteConfig": {
-                    "branch": "master",
-                    "repositoryUrl": "[parameters('gitRepoUrl')]"
                 },
                 "reserved": true
             },
@@ -59,7 +48,8 @@
                 "capacity": 1
             },
             "properties": {
-                "name": "[variables('appServicePlanId')]"
+                "name": "[variables('appServicePlanId')]",
+                "reserved": true
             }
         },
 {
