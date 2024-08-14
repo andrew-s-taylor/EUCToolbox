@@ -24,7 +24,7 @@
             "apiVersion": "2023-01-01",
             "name": "[parameters('appName')]",
             "location": "[resourceGroup().location]",
-            "kind": "app,linux",
+            "kind": "linux",
             "properties": {
                 "serverFarmId": "[variables('appServicePlanId')]",
                 "siteConfig": {
