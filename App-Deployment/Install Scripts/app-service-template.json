@@ -21,7 +21,7 @@
         
         {
             "type": "Microsoft.Web/sites",
-            "apiVersion": "2021-02-01",
+            "apiVersion": "2023-01-01",
             "name": "[parameters('appName')]",
             "location": "[resourceGroup().location]",
             "kind": "app,linux",
@@ -29,6 +29,7 @@
                 "serverFarmId": "[variables('appServicePlanId')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
+                    "linuxFxVersion": "PHP|8.3",
                     "acrUseManagedIdentityCreds": false,
                     "alwaysOn": false,
                     "http20Enabled": false,
