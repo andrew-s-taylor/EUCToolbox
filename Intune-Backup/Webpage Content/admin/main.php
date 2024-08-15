@@ -1,6 +1,6 @@
 <?php
 // Include the root "config.php" and "main.php" files
-include_once '../../../config/config.php';
+include_once '../config.php';
 include_once '../main.php';
 // Check if the user is logged-in
 check_loggedin($con, '../index.php');
