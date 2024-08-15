@@ -105,57 +105,8 @@ if (!$tenant) {
 
 
 }
-###############################################################################################################
-######                                  Create GUI for Tenant Details                                    ######
-###############################################################################################################
 
-if (!$tenant) {
-
-##Prompt for tenant ID in a GUI window
-Add-Type -AssemblyName System.Windows.Forms
-
-# Create a new form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = "Enter the Tenant ID"
-$form.Width = 300
-$form.Height = 150
-$form.StartPosition = "CenterScreen"
-
-# Create a label to display instructions
-$label = New-Object System.Windows.Forms.Label
-$label.Location = New-Object System.Drawing.Point(10, 20)
-$label.Size = New-Object System.Drawing.Size(280, 20)
-$label.Text = "Please enter the Tenant ID:"
-$form.Controls.Add($label)
-
-# Create a text box for user input
-$textbox = New-Object System.Windows.Forms.TextBox
-$textbox.Location = New-Object System.Drawing.Point(10, 50)
-$textbox.Size = New-Object System.Drawing.Size(280, 20)
-$form.Controls.Add($textbox)
-
-# Create a button to submit the input
-$button = New-Object System.Windows.Forms.Button
-$button.Location = New-Object System.Drawing.Point(100, 80)
-$button.Size = New-Object System.Drawing.Size(100, 30)
-$button.Text = "Submit"
-$button.DialogResult = [System.Windows.Forms.DialogResult]::OK
-$form.AcceptButton = $button
-$form.Controls.Add($button)
-
-# Show the form and wait for user input
-$result = $form.ShowDialog()
-
-# Get the user input from the text box
-if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
-    $tenantid = $textbox.Text
-}
-}
-else {
     $tenantid = $tenant
-}
-
-
 
 
 ###############################################################################################################

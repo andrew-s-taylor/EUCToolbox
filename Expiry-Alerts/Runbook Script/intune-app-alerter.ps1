@@ -55,6 +55,8 @@ param
     ,
     [string]$sendgridtoken #For emailing results
     ,
+    [string]$PathToHTMLTemplate #HTML Template for email
+    ,
     [object] $WebHookData #Webhook data for Azure Automation
     )
 
@@ -75,6 +77,8 @@ $EmailAddress = ((($bodyData.EmailAddress) | out-string).trim())
 $clientid = ((($bodyData.clientid) | out-string).trim())
 $clientsecret = ((($bodyData.clientsecret) | out-string).trim())
 $sendgridtoken = ((($bodyData.sendgridtoken) | out-string).trim())
+$PathToHTMLTemplate = ((($bodyData.htmltemplate) | out-string).trim())
+
 
 ##Using a webhook so use app reg
 $aadlogin = "yes"
@@ -491,7 +495,6 @@ $section3Body = 'These are your expiring app registrations:<br>' + $texttable_HT
 $section4Head = "Stale Devices"
 $staleoutput_HTML = $staleoutput.Replace('<table>','<table id="t01">')
 $section4Body = 'These devices have not been seen for 60 days:<br>' + $staleoutput_HTML
-$unsubscribe = "To unsubscribe, please click <a href='https://alerter.euctoolbox.com/unsubscribe.php?tenant=$tenant&email=$EmailAddress'>here</a>"
 $EmailContent = $EmailContent.Replace('$Section1Head',$Section1Head)
 $EmailContent = $EmailContent.Replace('$Section1Body',$Section1Body)
 $EmailContent = $EmailContent.Replace('$Section2Head',$Section2Head)
@@ -500,7 +503,6 @@ $EmailContent = $EmailContent.Replace('$Section3Head',$section3Head)
 $EmailContent = $EmailContent.Replace('$Section3Body',$Section3Body)
 $EmailContent = $EmailContent.Replace('$Section4Head',$section4Head)
 $EmailContent = $EmailContent.Replace('$Section4Body',$Section4Body)
-$EmailContent = $EmailContent.Replace('$Unsubscribe', $unsubscribe)
 $EmailContent = $EmailContent.Replace('$LinkSponsors',$footerhtml)
 
 
