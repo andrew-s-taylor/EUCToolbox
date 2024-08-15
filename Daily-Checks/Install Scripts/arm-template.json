@@ -1,0 +1,217 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "defaultValue": "Automation-EUCToolbox",
+            "metadata": {
+                "description": "EUCToolbox automation account name"
+            }
+        },
+        "automationRegion": {
+            "defaultValue": "uksouth",
+            "type": "string",
+            "allowedValues": [
+                "westeurope",
+                "southeastasia",
+                "eastus2",
+                "southcentralus",
+                "japaneast",
+                "northeurope",
+                "canadacentral",
+                "australiasoutheast",
+                "centralindia",
+                "westcentralus",
+                "uksouth",
+                "westus",
+                "eastus",
+                "westus2",
+                "centralus",
+                "northcentralus",
+                "eastasia",
+                "brazilsouth",
+                "australiaeast",
+                "australiacentral",
+                "southafricanorth",
+                "southafricawest"
+            ],
+            "metadata": {
+                "description": "Specify the region for your automation account"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/Daily-Checks/Runbook%20Script/Daily-Checks-Runbook.ps1",
+            "metadata": {
+                "description": "URI to artifacts location"
+            }
+        },
+        "webhookname": {
+            "type": "string",
+            "defaultValue": "Daily Checks Webhook",
+            "metadata": {
+                "description": "Webhook Name"
+            }
+        },
+        "runbookname": {
+            "type": "string",
+            "defaultValue": "Daily Checks",
+            "metadata": {
+                "description": "Runbook Name"
+            }
+        },
+        "webhookExpiryTime": {
+            "type": "string",
+            "defaultValue": "2026-08-12T00:00:00Z", // Manually computed expiry date
+            "metadata": {
+                "description": "The expiry time of the webhook, set to a specific date."
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account."
+            }
+        },
+        "containerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the blob container."
+            }
+        }
+    },
+    "variables": {
+        "tmpToken11": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname'))]",
+        "tmpToken12": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname'))]",
+        "tmpToken21": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname'))]",
+        "tmpToken22": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname'))]",
+        "webhookTokenPart1": "[substring(format('{0}{1}', variables('tmpToken11'), variables('tmpToken12')), 0, 20)]",
+        "webhookTokenPart2": "[substring(format('{0}{1}', variables('tmpToken21'), variables('tmpToken22')), 0, 22)]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('automationAccountName')]",
+            "location": "[parameters('automationRegion')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "disableLocalAuth": false,
+                "publicNetworkAccess": true,
+                "sku": {
+                    "name": "Free"
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Automation/automationAccounts/runbooks",
+                    "apiVersion": "2023-11-01",
+                    "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname'))]",
+                    "location": "[parameters('automationRegion')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": false,
+                        "logVerbose": false,
+                        "description": "DailyChecksEUCToolbox",
+                        "publishContentLink": {
+                            "uri": "[parameters('_artifactsLocation')]"
+                        }
+                    }
+                },
+                {
+                    "type": "Microsoft.Automation/automationAccounts/webhooks",
+                    "apiVersion": "2015-10-31",
+                    "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname'))]",
+                    "properties": {
+                        "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]",
+                        "isEnabled": true,
+                        "expiryTime": "[parameters('WebhookExpiryTime')]",
+                        "runbook": {
+                            "name": "[parameters('runbookname')]"
+                        }
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname'))]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Authentication')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Authentication')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.DeviceManagement')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Groups')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Groups')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-04-01",
+            "name": "[parameters('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2021-04-01",
+            "name": "[concat(parameters('storageAccountName'), '/default/', parameters('containerName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+            ],
+            "properties": {
+                "publicAccess": "Blob"
+            }
+        }
+    ],
+    "outputs": {
+        "webhookUri": {
+            "type": "string",
+            "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]"
+        }
+    }
+
+}

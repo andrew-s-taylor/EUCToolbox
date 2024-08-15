@@ -55,6 +55,8 @@ param
     , 
     [string]$sendgridtoken #Sendgrid API token
     ,
+    [string]$PathToHTMLTemplate #HTML Template for email
+    ,
     [object] $WebHookData #Webhook data for Azure Automation
     )
 
@@ -75,12 +77,12 @@ $clientid = ((($bodyData.clientid) | out-string).trim())
 $clientsecret = ((($bodyData.clientsecret) | out-string).trim())
 $EmailAddress = ((($bodyData.EmailAddress) | out-string).trim())
 $sendgridtoken = ((($bodyData.sendgridtoken) | out-string).trim())
+$PathToHTMLTemplate = ((($bodyData.htmltemplate) | out-string).trim())
 
 ##Using a webhook so use app reg
 $aadlogin = "yes"
 
 }
-
 
 ###############################################################################################################
 ######                                         Install Modules                                           ######
@@ -1219,7 +1221,7 @@ $jsonoutput | Add-Member -NotePropertyName "StaleDevices" -NotePropertyValue "$s
     
         }
 $readabledate = get-date -format dd-MM-yyyy-HH-mm-ss
-$PathToHTMLTemplate = "https://baselinepolicy.blob.core.windows.net/images/email-template.html"
+
 ##Download it
 Invoke-WebRequest -Uri $PathToHTMLTemplate -OutFile "$env:temp\email-template.html"
 $EmailContent = Get-Content "$env:temp\email-template.html" | Out-String

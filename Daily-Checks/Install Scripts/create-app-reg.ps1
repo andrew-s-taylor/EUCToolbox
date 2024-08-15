@@ -114,7 +114,7 @@ function Get-RandomPassword {
 ###############################################################################
 #Create AAD Application
 ###############################################################################
-$AppName =  "AppDeployEUCToolbox"
+$AppName =  "DailyChecksEUCToolbox"
 $App = New-MgApplication -DisplayName $AppName -SignInAudience AzureADMultipleOrgs
 $APPObjectID = $App.Id
 
@@ -122,7 +122,7 @@ $APPObjectID = $App.Id
 #Add a ClientSecret
 ###############################################################################
 $passwordCred = @{
-    "displayName" = "AppDeploySecret"
+    "displayName" = "DailyChecksSecret"
     "endDateTime" = (Get-Date).AddMonths(+24)
 }
 $ClientSecret2 = Add-MgApplicationPassword -ApplicationId $APPObjectID -PasswordCredential $passwordCred
@@ -137,30 +137,94 @@ $params = @{
     RequiredResourceAccess = @(
         @{
             ResourceAppId = "00000003-0000-0000-c000-000000000000"
-            ResourceAccess = @(
+            $permissions = @(
                 @{
-                    Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
-                    Type = "Scope"
+                    "id"   = "e12dae10-5a57-4817-b79d-dfbec5348930"
+                    "type" = "Role"
                 },
                 @{
-                    Id = "78145de6-330d-4800-a6ce-494ff2d33d07"
-                    Type = "Role"
-                },            
-                @{
-                    Id = "9241abd9-d0e6-425a-bd4f-47ba86e767a4"
-                    Type = "Role"
+                    "id"   = "9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30"
+                    "type" = "Role"
                 },
                 @{
-                    Id = "62a82d76-70ea-41e2-9197-370581804d09"
-                    Type = "Role"
+                    "id"   = "b0afded3-3588-46d8-8b3d-9842eff778da"
+                    "type" = "Role"
                 },
                 @{
-                    Id = "dbaae8cf-10b5-4b86-a4a1-f871c94c6695"
-                    Type = "Role"
+                    "id"   = "a9e09520-8ed4-4cde-838e-4fdea192c227"
+                    "type" = "Role"
                 },
                 @{
-                    Id = "498476ce-e0fe-48b0-b801-37ba7e2685c6"
-                    Type = "Role"
+                    "id"   = "7438b122-aefc-4978-80ed-43db9fcc7715"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "7a6ee1e7-141e-4cec-ae74-d9db155731ff"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "dc377aa6-52d8-4e23-b271-2a7ae04cedf3"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "2f51be20-0bb4-4fed-bf7b-db946066c75e"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "58ca0d9a-1575-47e1-a3cb-007ef2e4583b"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "06a5fe6d-c49d-46a7-b082-56b1b14103c7"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "7ab1d382-f21e-4acd-a863-ba3e13f7da61"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "dbb9058a-0e50-45d7-ae91-66909b5d4664"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "5b567255-7703-4780-807c-7be8301ae99b"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "98830695-27a2-44f7-8c18-0c3ebc9698f6"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "498476ce-e0fe-48b0-b801-37ba7e2685c6"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "246dd0d5-5bd0-4def-940b-0421030a5b68"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "37730810-e9ba-4e46-b07e-8ca78d182097"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "9e640839-a198-48fb-8b9a-013fd6f6cbcd"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "1c6e93a6-28e2-4cbb-9f64-1a46a821124d"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "230c1aed-a721-4c5d-9cb4-a90514e508ef"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "483bed4a-2ad3-4361-a73b-c83ccdbdc53c"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "bf394140-e372-4bf9-a898-299cfc7564e5"
+                    "type" = "Role"
                 }
             )
         }

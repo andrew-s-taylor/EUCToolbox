@@ -19,6 +19,12 @@ if (webhook == "WEBHOOKHERE") {
         
         <label for="appsecret">App Secret:</label>
         <input type="text" id="eappsecret" name="eappsecret" required><br><br>
+
+        <label for="sendgridtoken">Sendgrid Token:</label>
+        <input type="text" id="sendgridtoken" name="sendgridtoken" required><br><br>
+
+        <label for="templatepath">HTML Template URL:</label>
+        <input type="text" id="templatepath" name="templatepath" required><br><br>
         
         <input type="submit" value="Update Config">
     </form>

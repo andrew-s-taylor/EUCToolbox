@@ -3,6 +3,7 @@ include('config.php');
 $clientid = appID;
 $clientsecret = appSecret;
 $sendgridtoken = sendgridtoken;
+$htmltemplate = htmltemplate;
 
 $tenantid = $_POST['tenant'];
 $email = $_POST['email'];
@@ -14,6 +15,7 @@ $data = array(
      array("clientid" => "$clientid"),
      array("clientsecret" => "$clientsecret"),
      array("portal" => "No"),
+     array("htmltemplate" => "$htmltemplate"),
      array("sendgridtoken" => "$sendgridtoken")
  );
  
