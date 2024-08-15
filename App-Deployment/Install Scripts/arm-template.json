@@ -121,21 +121,19 @@
                         }
                     }  
                 },  
-                {  
-                    "type": "webhooks",  
-                    "apiVersion": "2023-05-15-preview",  
-                    "name": "[parameters('webhookname1')]",  
-                    "dependsOn": [  
- "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-  "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"                    ],  
-                    "properties": {  
-                        "isEnabled": true,  
-                         "expiryTime": "[parameters('webhookExpiryTime')]",
-                        "runbook": {  
-                            "name": "[parameters('runbookname1')]"  
-                        }  
-                    }  
-                },
+    {
+      "type": "Microsoft.Automation/automationAccounts/webhooks",
+      "apiVersion": "2021-06-22-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname1'))]",
+      "properties": {
+        "isEnabled": true,
+        "uri": "[format('{0}', reference(resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1')), '2021-06-22-preview').runbookTypeProperties.webhookUri)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"
+      ]
+    },
                                 {  
                     "type": "runbooks",  
                     "apiVersion": "2018-06-30",  
@@ -153,21 +151,19 @@
                         }
                     }  
                 },  
-                {  
-                    "type": "webhooks",  
-                    "apiVersion": "2023-05-15-preview",  
-                    "name": "[parameters('webhookname2')]",  
-                    "dependsOn": [  
- "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-  "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"                    ],  
-                    "properties": {  
-                        "isEnabled": true,  
-                         "expiryTime": "[parameters('webhookExpiryTime')]",
-                        "runbook": {  
-                            "name": "[parameters('runbookname2')]"  
-                        }  
-                    }  
-                }  
+    {
+      "type": "Microsoft.Automation/automationAccounts/webhooks",
+      "apiVersion": "2021-06-22-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname2'))]",
+      "properties": {
+        "isEnabled": true,
+        "uri": "[format('{0}', reference(resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2')), '2021-06-22-preview').runbookTypeProperties.webhookUri)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"
+      ]
+    }
             ]  
         } ,
                   {
@@ -249,15 +245,15 @@
           }
       }
 ],
-"outputs": {
-        "webhookUri": {  
-            "type": "String",  
-"value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname1'))).uri]"
-        },
-        "webhookUri2": {  
-            "type": "String",  
-"value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname2'))).uri]"
-        }
-}
+  "outputs": {
+    "webhookUri1": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname1')), '2021-06-22-preview').uri]"
+    },
+        "webhookUri2": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Automation/automationAccounts/webhooks', parameters('automationAccountName'), parameters('webhookname2')), '2021-06-22-preview').uri]"
+    }
+  }
 
 }
