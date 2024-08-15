@@ -8,7 +8,24 @@ include "header.php";
 
 <?php
 
+if (webhook == "WEBHOOKHERE") {
+    ?>
+    <form action="update_config.php" method="post">
+        <label for="webhook">Webhook:</label>
+        <input type="text" id="webhook" name="webhook" required><br><br>
+        
+        <label for="appid">App ID:</label>
+        <input type="text" id="eappid" name="eappid" required><br><br>
+        
+        <label for="appsecret">App Secret:</label>
+        <input type="text" id="eappsecret" name="eappsecret" required><br><br>
+        
+        <input type="submit" value="Update Config">
+    </form>
 
+    <?php
+}
+else {
 //Check for any POST messages and if found, display them
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
@@ -55,6 +72,9 @@ if (isset($_GET['message'])) {
         </tr>
     </table>
 </form>
+<?php
+}
+?>
 <script>
     // JavaScript logic to check email format
     var emailInput = document.getElementById('email');
