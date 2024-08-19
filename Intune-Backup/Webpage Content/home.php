@@ -468,7 +468,7 @@ $num_of_rows = $result->num_rows;
 echo "<h2>Your Tenant Status</h2>";
 echo "<table class=\"styled-table\">";
 echo "<thead>";
-echo "<tr><td>Tenant</td><td>Last Backup</td><td>Status</td><td>Drift</td><td>Gold Drift</td><td></td><td></td><td></td></tr>";
+echo "<tr><td>Tenant</td><td>Last Backup</td><td>Status</td><td>Drift</td><td>Gold Drift</td><td></td><td></td></tr>";
 echo "</thead>";
 $i = 1;
 
@@ -593,10 +593,6 @@ if ($count == 0) {
 <td><form action="restore2.php" method="post">
 <input type = "hidden" name="tenantid" value="<?php echo $tenantid1; ?>">
 <input class="profile-btn" type="submit" value="Restore">
- </form></td>
- <td><form action="review1.php" method="post">
-<input type = "hidden" name="desttenant" value="<?php echo $tenantid1; ?>">
-<input class="profile-btn" type="submit" value="Licenses">
  </form></td>
 <?php
 echo "</tr>";

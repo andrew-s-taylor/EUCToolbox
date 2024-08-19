@@ -69,12 +69,6 @@ echo "Error - Could not connect to the database, please check your settings and 
     <td>Webhook URL</td>
   </tr>
   <tr>
-    <td>Webhook Secret</td>
-    <td>
-    <input name="webhooksecret"></td>
-    <td>Secret Set in Webhook</td>
-  </tr>
-  <tr>
     <td>App Webhook URL</td>
     <td>
     <input name="appwebhookurl"></td>

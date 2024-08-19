@@ -46,8 +46,6 @@ define('activation_link','$themeurl');
 define('encryption_key','$encryption');
 //Webhook URL
 define('webhook',"$webhookurl");
-//Webhook secret
-define('webhooksecret', '$webhooksecret');
 //App Webhook URL
 define('appwebhook','$appwebhookurl');
 //Drift Webhook URL

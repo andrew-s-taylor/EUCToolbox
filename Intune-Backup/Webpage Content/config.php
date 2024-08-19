@@ -23,8 +23,6 @@ define('activation_link','WEBSITE/activate.php');
 define('encryption_key','');
 //Webhook URL
 define('webhook',"");
-//Webhook secret
-define('webhooksecret', '');
 //App Webhook URL
 define('appwebhook','');
 //Drift Webhook URL
