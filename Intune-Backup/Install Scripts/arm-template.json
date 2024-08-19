@@ -2,6 +2,119 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+            "administratorLogin": {
+      "type": "string"
+    },
+    "administratorLoginPassword": {
+      "type": "securestring"
+    },
+    "firewallRules": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "rule1",
+          "startIPAddress": "192.168.0.1",
+          "endIPAddress": "192.168.0.255"
+        },
+        {
+          "name": "rule2",
+          "startIPAddress": "0.0.0.0",
+          "endIPAddress": "0.0.0.0"
+        }
+      ]
+    },
+    "serverEdition": {
+      "type": "string",
+      "defaultValue": "Burstable",
+      "allowedValues": [
+        "Burstable",
+        "GeneralPurpose",
+        "MemoryOptimized"
+      ],
+      "metadata": {
+        "description": "The tier of the specific SKU. High availability is available only for GeneralPurpose and MemoryOptimized SKUs."
+      }
+    },
+    "version": {
+      "type": "string",
+      "defaultValue": "8.0.21",
+      "allowedValues": [
+        "5.7",
+        "8.0.21"
+      ],
+      "metadata": {
+        "description": "Server version"
+      }
+    },
+    "availabilityZone": {
+      "type": "string",
+      "defaultValue": "1",
+      "metadata": {
+        "description": "The availability zone information of the server. (If you don't have a preference, leave this setting blank.)"
+      }
+    },
+    "haEnabled": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "allowedValues": [
+        "Disabled",
+        "SameZone",
+        "ZoneRedundant"
+      ],
+      "metadata": {
+        "description": "High availability mode for a server: Disabled, SameZone, or ZoneRedundant."
+      }
+    },
+    "standbyAvailabilityZone": {
+      "type": "string",
+      "defaultValue": "2",
+      "metadata": {
+        "description": "The availability zone of the standby server."
+      }
+    },
+    "storageSizeGB": {
+      "type": "int",
+      "defaultValue": 20
+    },
+    "storageIops": {
+      "type": "int",
+      "defaultValue": 360
+    },
+    "storageAutogrow": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ]
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard_B1ms",
+      "metadata": {
+        "description": "The name of the SKU. For example, Standard_D32ds_v4."
+      }
+    },
+    "backupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7
+    },
+    "geoRedundantBackup": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "allowedValues": [
+        "Disabled",
+        "Enabled"
+      ]
+    },
+    "serverName": {
+      "type": "string",
+      "defaultValue": "intunebackupsql"
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "intunebackupdb"
+    },
         "automationAccountName": {
             "type": "string",
             "defaultValue": "Automation-EUCToolbox",
@@ -42,44 +155,44 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/Intune-Backup/Runbook%20Script/intune-backup-restore-withgui.ps1",
             "metadata": {
                 "description": "URI to artifacts location"
             }
         },
         "_artifactsLocation1": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook-manifest.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/Intune-Backup/Runbook%20Script/monitor-drift.ps1",
             "metadata": {
                 "description": "URI to artifacts location"
             }
         },
         "webhookname1": {
             "type": "string",
-            "defaultValue": "Community App Deployment Webhook",
+            "defaultValue": "BackupRestore Webhook",
             "metadata": {
-                "description": "Webhook Name community"
+                "description": "Webhook Name BackupRestore"
             }
         },
         "webhookname2": {
             "type": "string",
-            "defaultValue": "Manifest App Deployment Webhook",
+            "defaultValue": "DriftMonitor Webhook",
             "metadata": {
-                "description": "Webhook name manifest"
+                "description": "Webhook name DriftMonitor"
             }
         },
         "runbookname1": {
             "type": "string",
-            "defaultValue": "Community App Deployment",
+            "defaultValue": "BackupRestore",
             "metadata": {
-                "description": "Runbook Name community"
+                "description": "Runbook Name BackupRestore"
             }
         },
         "runbookname2": {
             "type": "string",
-            "defaultValue": "Manifest App Deployment",
+            "defaultValue": "DriftMonitor",
             "metadata": {
-                "description": "Runbook name manifest"
+                "description": "Runbook name DriftMonitor"
             }
         },
         "webhookExpiryTime": {
@@ -94,7 +207,7 @@
             "metadata": {
                 "description": "Name of the app service"
             },
-            "defaultValue": "AppDeploy-EUCToolbox"
+            "defaultValue": "IntuneBackup-EUCToolbox"
         },
         "gitRepoUrl": {
             "type": "string",
@@ -212,19 +325,6 @@
         {
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/IntuneWin32App')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-            ],
-            "properties": {
-                "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/IntuneWin32App')]"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Automation/automationAccounts/modules",
-            "apiVersion": "2023-11-01",
             "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Authentication')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
@@ -264,26 +364,26 @@
         {
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/powershell-yaml')]",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Devices.CorporateManagement')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
             ],
             "properties": {
                 "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/powershell-yaml')]"
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Devices.CorporateManagement')]"
                 }
             }
         },
         {
             "type": "Microsoft.Automation/automationAccounts/modules",
             "apiVersion": "2023-11-01",
-            "name": "[concat(parameters('automationAccountName'), '/SvRooij.ContentPrep.Cmdlet')]",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Identity.SignIns')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
             ],
             "properties": {
                 "contentLink": {
-                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/SvRooij.ContentPrep.Cmdlet')]"
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Identity.SignIns')]"
                 }
             }
         },
@@ -321,7 +421,7 @@
                 "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
             ],
             "properties": {
-                "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/App-Deployment/Webpage%20Content.zip",
+                "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/Intune-Backup/Webpage%20Content.zip",
                 "type": "zip"
             }
         },
@@ -341,16 +441,112 @@
                 "name": "[variables('appServicePlanId')]",
                 "reserved": true
             }
+        },
+            {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[parameters('serverName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[parameters('serverEdition')]"
+      },
+      "properties": {
+        "version": "[parameters('version')]",
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+        "availabilityZone": "[parameters('availabilityZone')]",
+        "highAvailability": {
+          "mode": "[parameters('haEnabled')]",
+          "standbyAvailabilityZone": "[parameters('standbyAvailabilityZone')]"
+        },
+        "storage": {
+          "storageSizeGB": "[parameters('storageSizeGB')]",
+          "iops": "[parameters('storageIops')]",
+          "autoGrow": "[parameters('storageAutogrow')]"
+        },
+        "backup": {
+          "backupRetentionDays": "[parameters('backupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
         }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('databaseName'))]",
+      "properties": {
+        "charset": "utf8",
+        "collation": "utf8_general_ci"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "createFirewallRules",
+        "count": "[length(range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1)))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('firewallRules-{0}', range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1))[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ip": {
+            "value": "[parameters('firewallRules')[range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1))[copyIndex()]]]"
+          },
+          "serverName": {
+            "value": "[parameters('serverName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "serverName": {
+              "type": "string"
+            },
+            "ip": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[format('{0}/{1}', parameters('serverName'), parameters('ip').name)]",
+              "properties": {
+                "startIpAddress": "[parameters('ip').startIPAddress]",
+                "endIpAddress": "[parameters('ip').endIPAddress]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ]
+    }
     ],
     "outputs": {
-        "webhookUricommunity": {
+        "backuprestoreuri": {
             "type": "string",
             "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]"
         },
-        "webhookUrimanifest": {
+        "driftcheckuri": {
             "type": "string",
             "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart3'), variables('webhookTokenPart4'))]"
+        },
+        "sqlServerFqdn": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))).fullyQualifiedDomainName]"
         }
     }
 
