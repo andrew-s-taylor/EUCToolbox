@@ -76,3 +76,8 @@ Web Service
 [Webpage Content](https://github.com/EUCToolbox/EUCToolbox/tree/main/Intune-Backup/Webpage%20Content)
 3) Navigate to the new URL and add /install to the URL
 4) Complete the steps to setup the environment
+
+Logic App for Drift Cron job
+1) Create a new logic app using the designer
+2) Set the trigger to be Recurrence at the date/time/frequency required
+3) Add an HTTP action sending a POST request to the website URL "/cron.php"

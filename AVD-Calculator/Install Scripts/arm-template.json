@@ -77,5 +77,11 @@
     ],
     "variables": {
         "appServicePlanId": "[concat('appServicePlan-', uniqueString(resourceGroup().id))]"
+    },
+        "outputs": {
+        "appServiceWebAddress": {
+          "type": "string",
+          "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName]"
+        }
     }
 }

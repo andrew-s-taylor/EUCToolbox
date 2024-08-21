@@ -215,7 +215,12 @@
                 "description": "URL of the public git repository"
             },
             "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
+        },
+        "workflows_crontest_name": {
+            "defaultValue": "BackupCron",
+            "type": "String"
         }
+
     },
     "variables": {
         "tmpToken11": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname1'))]",
@@ -533,7 +538,76 @@
       "dependsOn": [
         "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
       ]
-    }
+    },
+            {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_crontest_name')]",
+            "location": "northcentralus",
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "interval": 1,
+                                "frequency": "Day",
+                                "schedule": {
+                                    "hours": [
+                                        "23"
+                                    ],
+                                    "minutes": [
+                                        59
+                                    ]
+                                }
+                            },
+                            "evaluatedRecurrence": {
+                                "interval": 1,
+                                "frequency": "Day",
+                                "schedule": {
+                                    "hours": [
+                                        "23"
+                                    ],
+                                    "minutes": [
+                                        59
+                                    ]
+                                }
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "HTTP": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "uri": "[concat('https://', reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName, '/cron.php')]",
+                                "method": "GET"
+                            },
+                            "runtimeConfiguration": {
+                                "contentTransfer": {
+                                    "transferMode": "Chunked"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {}
+                    }
+                }
+            }
+        }
     ],
     "outputs": {
         "backuprestoreuri": {
@@ -547,6 +621,10 @@
         "sqlServerFqdn": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))).fullyQualifiedDomainName]"
+        },
+        "appServiceWebAddress": {
+          "type": "string",
+          "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName]"
         }
     }
 

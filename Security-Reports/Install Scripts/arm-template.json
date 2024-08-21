@@ -246,6 +246,10 @@
         "webhookUri": {
             "type": "string",
             "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]"
+        },
+        "appServiceWebAddress": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName]"
         }
     }
 
