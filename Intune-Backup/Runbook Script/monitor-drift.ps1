@@ -691,7 +691,6 @@ Function Get-DeviceConfigurationPolicy(){
 }
     
 ##########################################################################################
-
 Function Get-GroupPolicyConfigurationsDefinitionValues()
 {
 	
@@ -711,7 +710,7 @@ Function Get-GroupPolicyConfigurationsDefinitionValues()
 	Param (
 		
 		[Parameter(Mandatory = $true)]
-		[string]$GroupPolicyConfigurationID
+		$GroupPolicyConfigurationID
 		
 	)
 	
@@ -750,8 +749,8 @@ Function Get-GroupPolicyConfigurationsDefinitionValuesPresentationValues()
 	Param (
 		
 		[Parameter(Mandatory = $true)]
-		[string]$GroupPolicyConfigurationID,
-		[string]$GroupPolicyConfigurationsDefinitionValueID
+		$GroupPolicyConfigurationID,
+		$GroupPolicyConfigurationsDefinitionValueID
 		
 	)
 	$graphApiVersion = "Beta"
@@ -784,9 +783,9 @@ Function Get-GroupPolicyConfigurationsDefinitionValuesdefinition ()
 	Param (
 		
 		[Parameter(Mandatory = $true)]
-		[string]$GroupPolicyConfigurationID,
+		$GroupPolicyConfigurationID,
 		[Parameter(Mandatory = $true)]
-		[string]$GroupPolicyConfigurationsDefinitionValueID
+		$GroupPolicyConfigurationsDefinitionValueID
 		
 	)
 	$graphApiVersion = "Beta"
@@ -823,9 +822,9 @@ Function Get-GroupPolicyDefinitionsPresentations ()
 		
 		
 		[Parameter(Mandatory = $true)]
-		[string]$groupPolicyDefinitionsID,
+		$groupPolicyDefinitionsID,
 		[Parameter(Mandatory = $true)]
-		[string]$GroupPolicyConfigurationsDefinitionValueID
+		$GroupPolicyConfigurationsDefinitionValueID
 		
 	)
 	$graphApiVersion = "Beta"
@@ -838,7 +837,6 @@ Function Get-GroupPolicyDefinitionsPresentations ()
 		
 	
 }
-
 
 ####################################################
     
@@ -4786,31 +4784,31 @@ if ($policy.supportsScopeTags) {
                }
            }
        }
-
+       $gppolicyid = $policy.id
                        ##Now grab the JSON
-                       $GroupPolicyConfigurationsDefinitionValues = Get-GroupPolicyConfigurationsDefinitionValues -GroupPolicyConfigurationID $id
+                       $GroupPolicyConfigurationsDefinitionValues = Get-GroupPolicyConfigurationsDefinitionValues -GroupPolicyConfigurationID $gppolicyid
                        
        foreach ($GroupPolicyConfigurationsDefinitionValue in $GroupPolicyConfigurationsDefinitionValues)
        {
-           $DefinitionValuedefinition = Get-GroupPolicyConfigurationsDefinitionValuesdefinition -GroupPolicyConfigurationID $id -GroupPolicyConfigurationsDefinitionValueID $GroupPolicyConfigurationsDefinitionValue.id
+           $DefinitionValuedefinition = Get-GroupPolicyConfigurationsDefinitionValuesdefinition -GroupPolicyConfigurationID $gppolicyid -GroupPolicyConfigurationsDefinitionValueID $GroupPolicyConfigurationsDefinitionValue.id
            $DefinitionValuedefinitionID = $DefinitionValuedefinition.id
            $DefinitionValuedefinitionDisplayName = $DefinitionValuedefinition.displayName
            $DefinitionValuedefinitionDisplayName = $DefinitionValuedefinitionDisplayName
            $GroupPolicyDefinitionsPresentations = Get-GroupPolicyDefinitionsPresentations -groupPolicyDefinitionsID $id -GroupPolicyConfigurationsDefinitionValueID $GroupPolicyConfigurationsDefinitionValue.id
            $DefinitionValuePresentationValues = Get-GroupPolicyConfigurationsDefinitionValuesPresentationValues -GroupPolicyConfigurationID $id -GroupPolicyConfigurationsDefinitionValueID $GroupPolicyConfigurationsDefinitionValue.id
-           $policy | Add-Member -MemberType NoteProperty -Name "definition@odata.bind" -Value "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$definitionValuedefinitionID')"
-           $policy | Add-Member -MemberType NoteProperty -Name "enabled" -value $($GroupPolicyConfigurationsDefinitionValue.enabled.tostring().tolower())
+           $policy | Add-Member -MemberType NoteProperty -Name "definition@odata.bind" -Value "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$definitionValuedefinitionID')" -Force
+           $policy | Add-Member -MemberType NoteProperty -Name "enabled" -value $($GroupPolicyConfigurationsDefinitionValue.enabled.tostring().tolower()) -Force
                if ($DefinitionValuePresentationValues) {
                    $i = 0
                    $PresValues = @()
                    foreach ($Pres in $DefinitionValuePresentationValues) {
                        $P = $pres | Select-Object -Property * -ExcludeProperty id, createdDateTime, lastModifiedDateTime, version
                        $GPDPID = $groupPolicyDefinitionsPresentations[$i].id
-                       $P | Add-Member -MemberType NoteProperty -Name "presentation@odata.bind" -Value "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$definitionValuedefinitionID')/presentations('$GPDPID')"
+                       $P | Add-Member -MemberType NoteProperty -Name "presentation@odata.bind" -Value "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('$definitionValuedefinitionID')/presentations('$GPDPID')" -Force
                        $PresValues += $P
                        $i++
                    }
-               $policy | Add-Member -MemberType NoteProperty -Name "presentationValues" -Value $PresValues
+               $policy | Add-Member -MemberType NoteProperty -Name "presentationValues" -Value $PresValues -Force
                }
             }
 
