@@ -1,8 +1,17 @@
 # EUCToolbox
-EUCToolbox Code and Discussions
+# Instructions for Use
 
-Source code for all free apps will be here soon!!
+# Scripted Deployment
 
-In the meantime, please use the Issues to add any requests, bugs etc. and if you're feeling generous, the GitHub sponsors is now open.
 
-The $99 per month tier gets you full access to the premium apps too
+Second you want to deploy the resources to Azure by clicking this link:
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEUCToolbox%2FEUCToolbox%2Fmain%2FAVD-Calculator%2FInstall%2520Scripts%2Fapp-service-template.json)
+
+# Manual Deployment
+
+
+Web Service
+1) Create an Azure App Service running PHP (latest version), or you can use any other web hosting facilities
+2) Copy the contents of this directory into the root:
+[Webpage Content](https://github.com/EUCToolbox/EUCToolbox/tree/main/AVD-Calculator/Webpage%20Content)
+3) Navigate to the new URL and populate the fields
