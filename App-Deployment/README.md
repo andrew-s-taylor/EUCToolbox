@@ -5,17 +5,17 @@
 
 First you will need an app-reg with the appropriate permissions which can be created by running "create-app-reg.ps1"
 [create-app-reg.ps1](https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Install%20Scripts/create-app-reg.ps1)
-Make a note of the client ID and secret, you will need these later
+  Make a note of the client ID and secret, you will need these later
 
 Second you want to deploy the resources to Azure by clicking this link:
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FEUCToolbox%2FEUCToolbox%2Fmain%2FApp-Deployment%2FInstall%2520Scripts%2Farm-template.json)
 
 
-Fill in the required details and it will create runbooks and an app service with the web page content.
-The runbook script content will be automatically populated, but if you want to start with a forked version, update accordingly
-When it is complete, click on Outputs and make a note of the details.
+Fill in the required details and it will create runbooks and an app service with the web page content.  
+The runbook script content will be automatically populated, but if you want to start with a forked version, update accordingly.  
+When it is complete, click on Outputs and make a note of the details.  
 ![alt text](https://euctoolbox.com/images/outputs-image.jpg)
-Finally, navigate to your new app service website and you will be prompted to enter the details recorded earlier.
+Finally, navigate to your new app service website and you will be prompted to enter the details recorded earlier.  
 
 Add these and you are now up and running
 
