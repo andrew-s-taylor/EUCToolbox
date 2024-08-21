@@ -16,7 +16,8 @@ The runbook script content will be automatically populated, but if you want to s
 When it is complete, click on Outputs and make a note of the details.  
 ![alt text](https://euctoolbox.com/images/outputs-image.jpg)  
 
-  Finally, navigate to your new app service website and you will be prompted to enter the details recorded earlier.  
+Finally, navigate to your new app service website and you will be prompted to enter the details recorded earlier.  
+
 
 Add these and you are now up and running
 
