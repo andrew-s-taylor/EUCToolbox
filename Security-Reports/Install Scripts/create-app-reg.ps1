@@ -1,3 +1,48 @@
+<#PSScriptInfo
+.VERSION 1.0.0
+.GUID 2d121750-201f-46ae-9e4d-9f94aa88a54d
+.AUTHOR AndrewTaylor
+.DESCRIPTION Creates an app reg and outputs client ID and secret
+.COMPANYNAME 
+.COPYRIGHT GPL
+.TAGS entra, app reg
+.LICENSEURI https://github.com/andrew-s-taylor/public/blob/main/LICENSE
+.PROJECTURI https://github.com/andrew-s-taylor/public
+.ICONURI 
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS 
+.EXTERNALSCRIPTDEPENDENCIES 
+.RELEASENOTES
+#>
+<#
+.SYNOPSIS
+  Creates an Entra app reg and outputs the details
+.DESCRIPTION
+.Creates an Entra app reg and outputs the details
+
+.INPUTS
+None
+.OUTPUTS
+Client ID and secret
+
+.NOTES
+  Version:        1.0.0
+  Author:         Andrew Taylor
+  Twitter:        @AndrewTaylor_2
+  WWW:            andrewstaylor.com
+  Creation Date:  22/08/2024
+.EXAMPLE
+N/A
+#>
+
+<#
+  __ _  _ __    __| | _ __   ___ __      __ ___ | |_   __ _  _   _ | |  ___   _ __      ___   ___   _ __ ___
+ / _` || '_ \  / _` || '__| / _ \\ \ /\ / // __|| __| / _` || | | || | / _ \ | '__|    / __| / _ \ | '_ ` _ \
+| (_| || | | || (_| || |   |  __/ \ V  V / \__ \| |_ | (_| || |_| || || (_) || |    _ | (__ | (_) || | | | | |
+ \__,_||_| |_| \__,_||_|    \___|  \_/\_/  |___/ \__| \__,_| \__, ||_| \___/ |_|   (_) \___| \___/ |_| |_| |_|
+
+#>
+
 ##Creates a multi-tenant App Reg
 ##Secret is randomly generated
 ##App ID and Secret passed to the output
