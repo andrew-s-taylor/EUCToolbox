@@ -1,4 +1,25 @@
 <?php
+/**
+ * This file is part of a GPL-licensed project.
+ *
+ * Copyright (C) 2024 Andrew Taylor (andrew.taylor@andrewstaylor.com)
+ * A special thanks to David at Codeshack.io for the basis of the login system!
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://github.com/andrew-s-taylor/public/blob/main/LICENSE>.
+ */
+?>
+<?php
 // The main file contains the database connection, session initializing, and functions, other PHP files will depend on this file.
 // Include the configuration file
 include_once 'config.php';
@@ -14,17 +35,6 @@ if (mysqli_connect_errno()) {
 mysqli_set_charset($con, db_charset);
 // The below function will check if the user is logged-in and also check the remember me cookie
 function check_loggedin($con, $redirect_file = 'index.php') {
-	// If you want to update the "last seen" column on every page load, you can uncomment the below code
-	/*
-	if (isset($_SESSION['loggedin'])) {
-		$date = date('Y-m-d\TH:i:s');
-		$stmt = $con->prepare('UPDATE accounts SET last_seen = ? WHERE id = ?');
-		$stmt->bind_param('si', $date, $id);
-		$stmt->execute();
-		$stmt->close();
-	}
-	*/
-	// Check for remember me cookie variable and loggedin session variable
     if (isset($_COOKIE['rememberme']) && !empty($_COOKIE['rememberme']) && !isset($_SESSION['loggedin'])) {
     	// If the remember me cookie matches one in the database then we can update the session variables.
     	$stmt = $con->prepare('SELECT id, username, role FROM accounts WHERE rememberme = ?');
