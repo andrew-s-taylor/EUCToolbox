@@ -42,14 +42,14 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook.ps1",
             "metadata": {
                 "description": "URI to artifacts location"
             }
         },
         "_artifactsLocation1": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook-manifest.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/App-Deployment/Runbook%20Script/app-deploy-runbook-manifest.ps1",
             "metadata": {
                 "description": "URI to artifacts location"
             }
@@ -101,7 +101,7 @@
             "metadata": {
                 "description": "URL of the public git repository"
             },
-            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
+            "defaultValue": "https://github.com/andrew-s-taylor/EUCToolbox"
         }
     },
     "variables": {
@@ -321,7 +321,7 @@
                 "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
             ],
             "properties": {
-                "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/App-Deployment/Webpage%20Content.zip",
+                "packageUri": "https://github.com/andrew-s-taylor/EUCToolbox/raw/main/App-Deployment/Webpage%20Content.zip",
                 "type": "zip"
             }
         },

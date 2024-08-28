@@ -42,7 +42,7 @@
         },
         "_artifactsLocation": {
             "type": "string",
-            "defaultValue": "https://raw.githubusercontent.com/EUCToolbox/EUCToolbox/main/Daily-Checks/Runbook%20Script/Daily-Checks-Runbook.ps1",
+            "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Daily-Checks/Runbook%20Script/Daily-Checks-Runbook.ps1",
             "metadata": {
                 "description": "URI to artifacts location"
             }
@@ -92,7 +92,7 @@
             "metadata": {
                 "description": "URL of the public git repository"
             },
-            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
+            "defaultValue": "https://github.com/andrew-s-taylor/EUCToolbox"
         }
     },
     "variables": {
@@ -257,7 +257,7 @@
                 "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
             ],
             "properties": {
-                "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/Daily-Checks/Webpage%20Content.zip",
+                "packageUri": "https://github.com/andrew-s-taylor/EUCToolbox/raw/main/Daily-Checks/Webpage%20Content.zip",
                 "type": "zip"
             }
         },

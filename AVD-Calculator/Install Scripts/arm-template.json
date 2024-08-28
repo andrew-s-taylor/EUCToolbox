@@ -14,7 +14,7 @@
             "metadata": {
                 "description": "URL of the public git repository"
             },
-            "defaultValue": "https://github.com/EUCToolbox/EUCToolbox"
+            "defaultValue": "https://github.com/andrew-s-taylor/EUCToolbox"
         }
     },
     "resources": [
@@ -53,7 +53,7 @@
         "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
     ],
     "properties": {
-        "packageUri": "https://github.com/EUCToolbox/EUCToolbox/raw/main/AVD-Calculator/Webpage%20Content.zip",
+        "packageUri": "https://github.com/andrew-s-taylor/EUCToolbox/raw/main/AVD-Calculator/Webpage%20Content.zip",
         "type": "zip"
     }
 },
