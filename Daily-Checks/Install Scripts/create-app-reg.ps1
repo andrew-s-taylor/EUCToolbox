@@ -274,6 +274,14 @@ $params = @{
                 @{
                     "id"   = "bf394140-e372-4bf9-a898-299cfc7564e5"
                     "type" = "Role"
+                },
+                @{
+                    "id"   = "bf394140-e372-4bf9-a898-299cfc7564e5"
+                    "type" = "Role"
+                },
+                @{
+                    "id"   = "79c261e0-fe76-4144-aad5-bdc68fbe4037"
+                    "type" = "Role"
                 }
             )
         }

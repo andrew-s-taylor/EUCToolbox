@@ -1204,6 +1204,52 @@ $jsonoutput | Add-Member -NotePropertyName "StaleDevices" -NotePropertyValue "$s
 
 
 ##################################################################################################################################
+#################                                Service Health Issues                                           #################
+##################################################################################################################################
+
+$yesterday = (Get-Date).AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$uri = "https://graph.microsoft.com/beta/admin/serviceAnnouncement/issues?`$filter= startDateTime gt $yesterday"
+
+$healthissues = getallpagination -url $uri
+
+if ($healthissues = getallpagination -url $uri
+) {
+    $healthissueoutput = $healthissues | Select-Object startDateTime, endDateTime, title, impactDescription, classification, status, service | ConvertTo-Html -Fragment
+}
+else {
+    $healthissueoutput = "No service health Issues"
+}
+
+
+##################################################################################################################################
+#################                                Service Health Messages                                         #################
+##################################################################################################################################
+
+$yesterday = (Get-Date).AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+$uri = "https://graph.microsoft.com/beta/admin/serviceAnnouncement/messages?`$filter= startDateTime gt $yesterday"
+
+$healthmessages = getallpagination -url $uri
+
+if ($healthmessages = getallpagination -url $uri
+) {
+    $healthoutput = $healthmessages | Select-Object startDateTime, endDateTime, title | ConvertTo-Html -Fragment
+}
+else {
+    $healthoutput = "No service health messages"
+}
+
+
+##################################################################################################################################
+#################                                Service Health Overview                                         #################
+##################################################################################################################################
+
+$uri = "https://graph.microsoft.com/beta/admin/serviceAnnouncement/healthOverviews?`$filter=id eq 'Intune'"
+$servicehealth = (Invoke-MgGraphRequest -Uri $uri -Method GET -OutputType PSObject).value.status
+$serviceoutput = $servicehealth.ToString()
+
+$jsonoutput | Add-Member -NotePropertyName "ServiceHealth" -NotePropertyValue "$serviceoutput"
+
+##################################################################################################################################
 #################                                               Create HTML                                      #################
 ##################################################################################################################################
 
@@ -1284,6 +1330,12 @@ $section18Body = 'These are your expiring app registrations:<br>' + $texttable_H
 $section19Head = "Stale Devices"
 $staleoutput_HTML = $staleoutput.Replace('<table>','<table id="t01">')
 $section19Body = 'These devices have not been seen for 60 days:<br>' + $staleoutput_HTML
+$section20Head = "Service Health Overview"
+$section20Body = "Intune service health is: $serviceoutput"
+$section21Head = "Service Health Issues"
+$section21Body = $healthissueoutput.Replace('<table>','<table id="t01">')
+$section22Head = "Service Health Messages"
+$section22Body = $healthoutput.Replace('<table>','<table id="t01">')
 $unsubscribe = "To unsubscribe, please click <a href='https://dailychecks.euctoolbox.com/unsubscribe.php?tenantid=$tenant'>here</a>"
 $EmailContent = $EmailContent.Replace('$Section1Head',$Section1Head)
 $EmailContent = $EmailContent.Replace('$Section1Body',$Section1Body)
@@ -1323,6 +1375,12 @@ $EmailContent = $EmailContent.Replace('$Section18Head',$section18Head)
 $EmailContent = $EmailContent.Replace('$Section18Body',$Section18Body)
 $EmailContent = $EmailContent.Replace('$Section19Head',$section19Head)
 $EmailContent = $EmailContent.Replace('$Section19Body',$Section19Body)
+$EmailContent = $EmailContent.Replace('$Section19Head',$section20Head)
+$EmailContent = $EmailContent.Replace('$Section19Body',$Section20Body)
+$EmailContent = $EmailContent.Replace('$Section19Head',$section21Head)
+$EmailContent = $EmailContent.Replace('$Section19Body',$Section21Body)
+$EmailContent = $EmailContent.Replace('$Section19Head',$section22Head)
+$EmailContent = $EmailContent.Replace('$Section19Body',$Section22Body)
 $EmailContent = $EmailContent.Replace('$LinkSponsors',$footerhtml)
 
 if ($portal -ne "yes") {

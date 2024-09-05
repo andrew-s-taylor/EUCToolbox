@@ -58,6 +58,8 @@ App Reg:
 - Reports.Read.All
 - RoleManagement.Read.Directory
 - SecurityEvents.Read.All
+- ServiceHealth.Read.All
+- ServiceMessage.Read.All
 4) Click on Certificates and secrets and create a new secret.  Make a note of the secret value
 
 Runbooks:
