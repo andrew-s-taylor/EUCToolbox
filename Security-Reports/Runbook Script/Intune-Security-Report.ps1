@@ -66,6 +66,18 @@ param
     , 
     [string]$sendgridtoken #Sendgrid API token
     , 
+    [string]$reponame #Reponame is the github/Azure Devops repo
+    , 
+    [string]$ownername #Ownername is the github account/ Azure Devops Org
+    , 
+    [string]$token #Token is the github/devops token
+    , 
+    [string]$project #Project is the project when using Azure Devops or Project ID when using GitLab
+    , 
+    [string]$repotype #Repotype is the type of repo, github, gitlab or azuredevops, defaults to github
+    , 
+    [string]$portal #Portal is used for manager app
+    ,
     [object]$WebHookData #Webhook data for Azure Automation
 
     )
@@ -83,6 +95,12 @@ $clientid = ((($bodyData.clientid) | out-string).trim())
 $clientsecret = ((($bodyData.clientsecret) | out-string).trim())
 $recipient = ((($bodyData.recipient) | out-string).trim())
 $sendgridtoken = ((($bodyData.sendgridtoken) | out-string).trim())
+$reponame = ((($bodyData.reponame) | out-string).trim())
+$ownername = ((($bodyData.ownername) | out-string).trim())
+$token = ((($bodyData.token) | out-string).trim())
+$project = ((($bodyData.project) | out-string).trim())
+$repotype = ((($bodyData.repotype) | out-string).trim())
+$portal = ((($bodyData.portal) | out-string).trim())
 
 
 
@@ -112,6 +130,121 @@ if (!$tenant) {
 ###############################################################################################################
 ######                                          Add Functions                                            ######
 ###############################################################################################################
+
+Function Add-DevopsFile(){
+    
+    <#
+    .SYNOPSIS
+    This function is used to add a file to an Azure Devops Repository
+    .DESCRIPTION
+    The function connects to the Azure Devops API and adds a file to a repository
+    .EXAMPLE
+    add-devopsfile -repo reponame -project projectname -organization orgname -filename filename -filecontent filecontent -token token
+    .NOTES
+    NAME: add-devopsfile
+    #>
+    
+    [cmdletbinding()]
+    
+    param
+    (
+        $repo,
+        $project,
+        $organization,
+        $filename,
+        $filecontent,
+        $token
+    )
+    
+
+    $base64AuthInfo= [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
+    $encryptedcontent= [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($filecontent)"))
+
+    $repoUrl = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repo"
+
+    $repo = Invoke-RestMethod -Uri $repoUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method Get
+    $repoId = $repo.id
+
+    ##Check for commits
+    $pushiduri = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repoId/pushes?&`$top=1&searchCriteria.refName=refs/heads/master&api-version=6.0"
+    $pushid = ((Invoke-RestMethod -Uri $pushiduri -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method Get).value).pushId
+    $commituri = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repoID/pushes/$pushid`?api-version=6.0"
+    $commit = ((Invoke-RestMethod -Uri $commituri -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method Get).commits).commitId
+
+    if ($commit) {
+        $oldid = $commit
+    } else {
+        $oldid = "0000000000000000000000000000000000000000"
+    }
+
+
+    # Push the commit
+$pushUrl = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repoId/pushes?api-version=6.0"
+$json = @"
+{
+    "refUpdates": [
+      {
+        "name": "refs/heads/master",
+        "oldObjectId": "$oldid"
+      }
+    ],
+    "commits": [
+      {
+        "comment": "Added new file.",
+        "changes": [
+          {
+            "changeType": "add",
+            "item": {
+              "path": "/$filename"
+            },
+            "newContent": {
+              "content": "$encryptedcontent",
+              "contentType": "base64encoded"
+            }
+          }
+        ]
+      }
+    ]
+  }
+"@
+Invoke-RestMethod -Uri $pushUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method Post -Body $json -ContentType "application/json"   
+}
+
+Function Get-DevOpsCommits(){
+    
+    <#
+    .SYNOPSIS
+    This function is used to get commits from an Azure Devops Repository
+    .DESCRIPTION
+    The function connects to the Azure Devops API and gets commits from a repository
+    .EXAMPLE
+    Get-DevOpsCommits -repo reponame -project projectname -organization orgname -token token
+    .NOTES
+    NAME: Get-DevOpsCommits
+    #>
+    
+    [cmdletbinding()]
+    
+    param
+    (
+        $repo,
+        $project,
+        $organization,
+        $token
+    )
+    
+
+    $base64AuthInfo= [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes(":$($token)"))
+    $repoUrl = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repo"
+    $repo = Invoke-RestMethod -Uri $repoUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -Method Get
+    $repoId = $repo.id
+
+    # Get the commits
+$ProjectUrl = "https://dev.azure.com/$organization/$project/_apis/git/repositories/$repoId/commits?api-version=7.0"
+$CommitInfo = (Invoke-RestMethod -Uri $ProjectUrl -Method Get -UseDefaultCredential -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)}).value
+
+return $CommitInfo
+}
 function Test-RegistryKey {
     <#
         .SYNOPSIS
@@ -1944,6 +2077,185 @@ $Parameters = @{
 }
 Invoke-RestMethod @Parameters
 
+if ($portal -eq "yes") {
+    
+$filetoupload = $path
+$filename = "$tenant-intunereport.html"
 
+$backupreason = "Daily Check"
+
+##Encode profiles to base64
+$logencoded =[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($html))
+##Upload Logs
+write-output "Uploading log to Git Repo"
+if ($repotype -eq "github") {
+    write-output "Uploading to Github"
+##Upload to GitHub
+$date =get-date -format yyMMddHHmmss
+$date = $date.ToString()
+$readabledate = get-date -format dd-MM-yyyy-HH-mm-ss
+$uri = "https://api.github.com/repos/$ownername/$reponame/contents/$filename"
+try {
+    # Get the SHA of the file
+    $getShaResponse = Invoke-RestMethod -Uri $uri -Method get -Headers @{'Authorization'='bearer '+$token;}
+    $sha = $getShaResponse.sha
+} catch {
+    # If the file does not exist, the SHA is null
+    $sha = $null
+}
+
+$message = "$backupreason - $readabledate"
+if ($null -eq $sha) {
+    # If the file does not exist, create a new file
+    $body = '{{"message": "{0}", "content": "{1}" }}' -f $message, $logencoded
+} else {
+    # If the file exists, overwrite it
+    $body = '{{"message": "{0}", "content": "{1}", "sha": "{2}" }}' -f $message, $logencoded, $sha
+}
+(Invoke-RestMethod -Uri $uri -Method put -Headers @{'Authorization'='bearer '+$token;} -Body $body -ContentType "application/json")
+}
+if ($repotype -eq "gitlab") {
+    write-output "Uploading to GitLab"
+##Upload to GitLab
+$date = Get-Date -Format yyMMddHHmmss
+$date = $date.ToString()
+$readabledate = Get-Date -Format dd-MM-yyyy-HH-mm-ss
+$GitLabUrl = "https://gitlab.com/api/v4"
+
+# Create a new file in the repository
+$CommitMessage = $backupreason
+$BranchName = "main"
+$FileContent = @{
+    "branch" = $BranchName
+    "commit_message" = $CommitMessage
+    "actions" = @(
+        @{
+            "action" = "create"
+            "file_path" = $filename
+            "content" = $logencoded
+        }
+    )
+}
+$FileContentJson = $FileContent | ConvertTo-Json -Depth 10
+$CreateFileUrl = "$GitLabUrl/projects/$project/repository/commits"
+$Headers = @{
+    "PRIVATE-TOKEN" = $token
+}
+try {
+$fileUrl = "$GitLabUrl/projects/$project/repository/files/$filename"
+$fileExistsResponse = Invoke-RestMethod -Uri $fileUrl -Method get -Headers $Headers
+} catch {
+$fileExists = $false
+}
+if ($null -eq $fileExistsResponse) {
+# If the file does not exist, create a new file
+# Your existing code to create a new file goes here
+Invoke-RestMethod -Uri $CreateFileUrl -Method Post -Headers $Headers -Body $FileContentJson -ContentType "application/json"
+} else {
+# If the file exists, overwrite it
+# Your existing code to overwrite the file goes here
+Invoke-RestMethod -Uri $CreateFileUrl -Method PUT -Headers $Headers -Body $FileContentJson -ContentType "application/json"
+}
+
+}
+if ($repotype -eq "azuredevops") {
+    $date =get-date -format yyMMddHHmmss
+$date = $date.ToString()
+                    write-output "Uploading to Azure DevOps"
+    Add-DevopsFile -repo $reponame -project $project -organization $ownername -filename $filename -filecontent $logcontent -token $token -comment $backupreason
+
+}
+
+
+
+
+
+##And the JSON
+##Encode profiles to base64
+$filename2 = "$tenant-securityapi.json"
+$outputconverted = $jsonoutput | ConvertTo-Json
+$logencoded2 =[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($outputconverted))
+##Upload Logs
+write-output "Uploading log to Git Repo"
+if ($repotype -eq "github") {
+    write-output "Uploading to Github"
+##Upload to GitHub
+$date =get-date -format yyMMddHHmmss
+$date = $date.ToString()
+$readabledate = get-date -format dd-MM-yyyy-HH-mm-ss
+$backupreason = "API Checks"
+$uri = "https://api.github.com/repos/$ownername/$reponame/contents/$filename2"
+try {
+    # Get the SHA of the file
+    $getShaResponse = Invoke-RestMethod -Uri $uri -Method get -Headers @{'Authorization'='bearer '+$token;}
+    $sha = $getShaResponse.sha
+} catch {
+    # If the file does not exist, the SHA is null
+    $sha = $null
+}
+
+$message = "$backupreason - $readabledate"
+if ($null -eq $sha) {
+    # If the file does not exist, create a new file
+    $body = '{{"message": "{0}", "content": "{1}" }}' -f $message, $logencoded2
+} else {
+    # If the file exists, overwrite it
+    $body = '{{"message": "{0}", "content": "{1}", "sha": "{2}" }}' -f $message, $logencoded2, $sha
+}
+(Invoke-RestMethod -Uri $uri -Method put -Headers @{'Authorization'='bearer '+$token;} -Body $body -ContentType "application/json")
+}
+if ($repotype -eq "gitlab") {
+    write-output "Uploading to GitLab"
+##Upload to GitLab
+$date = Get-Date -Format yyMMddHHmmss
+$date = $date.ToString()
+$readabledate = Get-Date -Format dd-MM-yyyy-HH-mm-ss
+$GitLabUrl = "https://gitlab.com/api/v4"
+
+# Create a new file in the repository
+$CommitMessage = $backupreason
+$BranchName = "main"
+$FileContent = @{
+    "branch" = $BranchName
+    "commit_message" = $CommitMessage
+    "actions" = @(
+        @{
+            "action" = "create"
+            "file_path" = $filename2
+            "content" = $logencoded2
+        }
+    )
+}
+$FileContentJson = $FileContent | ConvertTo-Json -Depth 10
+$CreateFileUrl = "$GitLabUrl/projects/$project/repository/commits"
+$Headers = @{
+    "PRIVATE-TOKEN" = $token
+}
+try {
+$fileUrl = "$GitLabUrl/projects/$project/repository/files/$filename2"
+$fileExistsResponse = Invoke-RestMethod -Uri $fileUrl -Method get -Headers $Headers
+} catch {
+$fileExists = $false
+}
+if ($null -eq $fileExistsResponse) {
+# If the file does not exist, create a new file
+# Your existing code to create a new file goes here
+Invoke-RestMethod -Uri $CreateFileUrl -Method Post -Headers $Headers -Body $FileContentJson -ContentType "application/json"
+} else {
+# If the file exists, overwrite it
+# Your existing code to overwrite the file goes here
+Invoke-RestMethod -Uri $CreateFileUrl -Method PUT -Headers $Headers -Body $FileContentJson -ContentType "application/json"
+}
+
+}
+if ($repotype -eq "azuredevops") {
+    $date =get-date -format yyMMddHHmmss
+$date = $date.ToString()
+                    write-output "Uploading to Azure DevOps"
+    Add-DevopsFile -repo $reponame -project $project -organization $ownername -filename $filename2 -filecontent $logcontent2 -token $token -comment $backupreason
+
+}
+
+}
 
 Disconnect-MgGraph
