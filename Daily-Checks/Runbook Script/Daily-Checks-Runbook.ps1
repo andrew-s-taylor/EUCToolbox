@@ -1250,6 +1250,163 @@ $serviceoutput = $servicehealth.ToString()
 $jsonoutput | Add-Member -NotePropertyName "ServiceHealth" -NotePropertyValue "$serviceoutput"
 
 ##################################################################################################################################
+#################                                Feature Update Checks                                           #################
+##################################################################################################################################
+
+$uri = "https://graph.microsoft.com/beta/deviceManagement/reports/getWindowsUpdateAlertSummaryReport"
+
+$json = @"
+{
+    "select": [
+        "PolicyId",
+        "NumberOfDevicesWithErrors"
+    ]
+}
+"@
+
+$tempfilepath = $env:TEMP + "\featureupdates.txt"
+
+Invoke-MgGraphRequest -Method POST -Uri $uri -Body $json -ContentType "application/json" -OutputFilePath $tempfilepath
+
+$parsedData = get-content $tempfilepath | ConvertFrom-Json
+$fullvalues = $parsedData.Values
+
+$sumerrors = 0
+$policieswitherrors = @()
+
+foreach ($value in $values) {
+    $policyid = $value[1]
+    $errorcount = $value[0]
+
+    $sumerrors += $errorcount
+
+    if ($errorcount -gt 0) {
+        $policieswitherrors += $policyid
+    }
+}
+
+if ($sumerrors -gt 0) {
+    $featureupdateoutput = "There are $sumerrors devices with errors in the following policies: $policieswitherrors"
+}
+else {
+    $featureupdateoutput = "There are no devices with errors"
+}
+
+$jsonoutput | Add-Member -NotePropertyName "FeatureUpdateErrors" -NotePropertyValue "$errorcount"
+
+Remove-Item $tempfilepath -Force
+
+
+##################################################################################################################################
+#################                                Expedited Update Checks                                         #################
+##################################################################################################################################
+
+$uri = "https://graph.microsoft.com/beta/deviceManagement/reports/getWindowsQualityUpdateAlertSummaryReport"
+
+$json = @"
+{
+    "select": [
+        "PolicyId",
+        "NumberOfDevicesWithErrors"
+    ]
+}
+"@
+
+$tempfilepath = $env:TEMP + "\expeditedupdates.txt"
+
+Invoke-MgGraphRequest -Method POST -Uri $uri -Body $json -ContentType "application/json" -OutputFilePath $tempfilepath
+
+$parsedData = get-content $tempfilepath | ConvertFrom-Json
+$fullvalues = $parsedData.Values
+
+$sumerrors = 0
+$policieswitherrors = @()
+
+foreach ($value in $values) {
+    $policyid = $value[1]
+    $errorcount = $value[0]
+
+    $sumerrors += $errorcount
+
+    if ($errorcount -gt 0) {
+        $policieswitherrors += $policyid
+    }
+}
+
+if ($sumerrors -gt 0) {
+    $expeditedupdateoutput = "There are $sumerrors devices with errors in the following policies: $policieswitherrors"
+}
+else {
+    $expeditedupdateoutput = "There are no devices with errors"
+}
+
+$jsonoutput | Add-Member -NotePropertyName "expeditedUpdateErrors" -NotePropertyValue "$errorcount"
+
+Remove-Item $tempfilepath -Force
+
+##################################################################################################################################
+#################                                Driver Update Checks                                            #################
+##################################################################################################################################
+
+$uri = "https://graph.microsoft.com/beta/deviceManagement/reports/getWindowsDriverUpdateAlertSummaryReport"
+
+$json = @"
+{
+    "select": [
+        "PolicyName",
+        "NumberOfDevicesWithErrors"
+    ]
+}
+"@
+
+$tempfilepath = $env:TEMP + "\driverupdates.txt"
+
+Invoke-MgGraphRequest -Method POST -Uri $uri -Body $json -ContentType "application/json" -OutputFilePath $tempfilepath
+
+$parsedData = get-content $tempfilepath | ConvertFrom-Json
+$fullvalues = $parsedData.Values
+
+$sumerrors = 0
+$policieswitherrors = @()
+
+foreach ($value in $values) {
+    $policyid = $value[1]
+    $errorcount = $value[0]
+
+    $sumerrors += $errorcount
+
+    if ($errorcount -gt 0) {
+        $policieswitherrors += $policyid
+    }
+}
+
+if ($sumerrors -gt 0) {
+    $driverupdateoutput = "There are $sumerrors devices with errors in the following policies: $policieswitherrors"
+}
+else {
+    $driverupdateoutput = "There are no devices with errors"
+}
+
+$jsonoutput | Add-Member -NotePropertyName "DriverUpdateErrors" -NotePropertyValue "$errorcount"
+
+Remove-Item $tempfilepath -Force
+
+
+##################################################################################################################################
+#################                                 Deployment Status                                              #################
+##################################################################################################################################
+
+$uri = "https://graph.microsoft.com/beta//deviceManagement/softwareUpdateStatusSummary?`$select=conflictDeviceCount,errorDeviceCount"
+
+$deploymentstatus = Invoke-MgGraphRequest -Method GET -Uri $uri -OutputType PSObject
+$conflictdevices = $deploymentstatus.conflictDeviceCount
+$errordevices = $deploymentstatus.errorDeviceCount
+$deploymentoutput = $deploymentstatus | Select-Object * -ExcludeProperty '@odata.context' | ConvertTo-Html -Fragment
+
+$jsonoutput | Add-Member -NotePropertyName "UpdateConflictDevices" -NotePropertyValue "$conflictdevices"
+$jsonoutput | Add-Member -NotePropertyName "UpdateErrorDevices" -NotePropertyValue "$errordevices"
+
+##################################################################################################################################
 #################                                               Create HTML                                      #################
 ##################################################################################################################################
 
@@ -1336,6 +1493,14 @@ $section21Head = "Service Health Issues"
 $section21Body = $healthissueoutput.Replace('<table>','<table id="t01">')
 $section22Head = "Service Health Messages"
 $section22Body = $healthoutput.Replace('<table>','<table id="t01">')
+$section23Head = "Feature Update Policy Errors"
+$section23Body = $featureupdateoutput
+$section24Head = "Quality Update Policy Errors"
+$section24Body = $expeditedupdateoutput
+$section25Head = "Driver Update Policy Errors"
+$section25Body = $driverupdateoutput
+$section26Head = "Windows Update Deployment Status"
+$section26Body = $deploymentoutput
 $unsubscribe = "To unsubscribe, please click <a href='https://dailychecks.euctoolbox.com/unsubscribe.php?tenantid=$tenant'>here</a>"
 $EmailContent = $EmailContent.Replace('$Section1Head',$Section1Head)
 $EmailContent = $EmailContent.Replace('$Section1Body',$Section1Body)
@@ -1381,6 +1546,14 @@ $EmailContent = $EmailContent.Replace('$Section21Head',$section21Head)
 $EmailContent = $EmailContent.Replace('$Section21Body',$Section21Body)
 $EmailContent = $EmailContent.Replace('$Section22Head',$section22Head)
 $EmailContent = $EmailContent.Replace('$Section22Body',$Section22Body)
+$EmailContent = $EmailContent.Replace('$Section23Head',$section23Head)
+$EmailContent = $EmailContent.Replace('$Section23Body',$Section23Body)
+$EmailContent = $EmailContent.Replace('$Section24Head',$section24Head)
+$EmailContent = $EmailContent.Replace('$Section24Body',$Section24Body)
+$EmailContent = $EmailContent.Replace('$Section25Head',$section25Head)
+$EmailContent = $EmailContent.Replace('$Section25Body',$Section25Body)
+$EmailContent = $EmailContent.Replace('$Section26Head',$section26Head)
+$EmailContent = $EmailContent.Replace('$Section26Body',$Section26Body)
 $EmailContent = $EmailContent.Replace('$LinkSponsors',$footerhtml)
 
 if ($portal -ne "yes") {
