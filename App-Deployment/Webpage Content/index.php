@@ -208,7 +208,8 @@ foreach ($apps as $app){
         </td>
     </tr>
 </table>
-<form action="processapp.php" method="post">
+<form action="processapp.php" method="post">    
+    <input type="hidden" name="appdeploytype" value="community">
     <input type="hidden" name="appid" value="<?php echo $appidsent; ?>">
    <table class="styled-table">
 	   <tr><td colspan="2">	   <label for="checkbox">Custom Group Name?:</label>
@@ -250,14 +251,7 @@ foreach ($apps as $app){
     <tr><td class="tableButton" colspan="2" align="center"><input class="profile-btn" type="submit" value="Deploy to Intune"></td></tr>
     </form>
     </table>
-    <table class="styled-table">
-        <tr><td>
-    <form action="process-rimo3.php" method="post">        
-        <input type="hidden" name="appid" value="<?php echo $appid; ?>">
-        <input class="profile-btn" type="submit" value="Deploy to Rimo3">
-    </form>
-    </td></tr>
-    </table>
+
                 
 <?php
 }
