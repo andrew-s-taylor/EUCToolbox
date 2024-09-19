@@ -838,6 +838,7 @@ Function Get-GroupPolicyDefinitionsPresentations ()
 	
 }
 
+
 ####################################################
     
 Function Get-DeviceConfigurationPolicySC(){
@@ -4686,6 +4687,39 @@ return $json
 }
 
 #################################################################################################
+function getallpagination () {
+    <#
+.SYNOPSIS
+This function is used to grab all items from Graph API that are paginated
+.DESCRIPTION
+The function connects to the Graph API Interface and gets all items from the API that are paginated
+.EXAMPLE
+getallpagination -url "https://graph.microsoft.com/v1.0/groups"
+ Returns all items
+.NOTES
+ NAME: getallpagination
+#>
+[cmdletbinding()]
+    
+param
+(
+    $url
+)
+    $response = (Invoke-MgGraphRequest -uri $url -Method Get -OutputType PSObject)
+    $alloutput = $response.value
+    
+    $alloutputNextLink = $response."@odata.nextLink"
+    
+    while ($null -ne $alloutputNextLink) {
+        $alloutputResponse = (Invoke-MGGraphRequest -Uri $alloutputNextLink -Method Get -outputType PSObject)
+        $alloutputNextLink = $alloutputResponse."@odata.nextLink"
+        $alloutput += $alloutputResponse.value
+    }
+    
+    return $alloutput
+    }
+
+#################################################################################################
 function getpolicyjson() {
     <#
 .SYNOPSIS
@@ -5225,6 +5259,37 @@ if ($policy.supportsScopeTags) {
 "conditionalaccess" {
     $uri = "conditionalaccess"
     $policy = Get-ConditionalAccessPolicy -id $id
+    $includelocations = $policy.conditions.locations.includeLocations
+    $excludelocations = $policy.conditions.locations.excludeLocations
+    $newincludelocations = @()
+    $newexcludelocations = @()
+    foreach ($ilocation in $includelocations) {
+        ##Check if it is a GUID
+        if ($ilocation -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
+            # $location is a GUID
+            $nameduri = "https://graph.microsoft.com/beta/identity/conditionalAccess/namedLocations/$ilocation"
+            $ilocjson = Invoke-MgGraphRequest -Uri $nameduri -Method GET -OutputType PSObject | Select-Object * -ExcludeProperty modifiedDateTime, createdDateTime
+            $newincludelocations += $ilocjson
+        } else {
+            # $location is not a GUID
+            $newincludelocations += $ilocation
+        }
+    }
+
+    foreach ($elocation in $excludelocations) {
+        ##Check if it is a GUID
+        if ($elocation -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
+            # $location is a GUID
+            $nameduri = "https://graph.microsoft.com/beta/identity/conditionalAccess/namedLocations/$elocation"
+            $elocjson = Invoke-MgGraphRequest -Uri $nameduri -Method GET -OutputType PSObject | Select-Object * -ExcludeProperty modifiedDateTime, createdDateTime
+            $newexcludelocations += $elocjson
+        } else {
+            # $location is not a GUID
+            $newexcludelocations += $elocation
+        }
+    }
+    $policy.conditions.locations.includeLocations = $newincludelocations
+    $policy.conditions.locations.excludeLocations = $newexcludelocations
     $oldname = $policy.displayName
 }
 "deviceAppManagement/mobileApps" {
