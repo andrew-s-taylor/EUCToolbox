@@ -1300,12 +1300,12 @@ function new-aadgroups {
     switch ($grouptype) {
         "install" {
             $groupname = $appname + " Install Group"
-            $nickname = $appid + "install"
+            $nickname = ($appid + "install").ToLower() -replace '[^a-z]', ''
             $groupdescription = "Group for installation and updating of $appname application"
         }
         "uninstall" {
             $groupname = $appname + " Uninstall Group"
-            $nickname = $appid + "uninstall"
+            $nickname = ($appid + "uninstall").ToLower() -replace '[^a-z]', ''
             $groupdescription = "Group for uninstallation of $appname application"
         }
     }
@@ -1328,11 +1328,11 @@ function new-aadgroupsspecific {
     )
     switch ($grouptype) {
         "install" {
-            $nickname = $appid + "install"
+            $nickname = ($appid + "install").ToLower() -replace '[^a-z]', ''
             $groupdescription = "Group for installation and updating of $appname application"
         }
         "uninstall" {
-            $nickname = $appid + "uninstall"
+            $nickname = ($appid + "uninstall").ToLower() -replace '[^a-z]', ''
             $groupdescription = "Group for uninstallation of $appname application"
         }
     }
