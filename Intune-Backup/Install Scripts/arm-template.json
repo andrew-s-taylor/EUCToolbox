@@ -267,7 +267,7 @@
                         "runbookType": "PowerShell",
                         "logProgress": false,
                         "logVerbose": false,
-                        "description": "Deploys Winget community apps",
+                        "description": "Intune Backup and Restore",
                         "publishContentLink": {
                             "uri": "[parameters('_artifactsLocation')]"
                         }
@@ -302,7 +302,7 @@
                         "runbookType": "PowerShell",
                         "logProgress": false,
                         "logVerbose": false,
-                        "description": "Deploys Winget manifest apps",
+                        "description": "Drift Monitoring",
                         "publishContentLink": {
                             "uri": "[parameters('_artifactsLocation1')]"
                         }
@@ -543,7 +543,7 @@
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[parameters('workflows_crontest_name')]",
-            "location": "northcentralus",
+            "location": "[parameters('automationRegion')]",
             "properties": {
                 "state": "Enabled",
                 "definition": {
