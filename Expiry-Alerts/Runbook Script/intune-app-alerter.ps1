@@ -85,7 +85,6 @@ $aadlogin = "yes"
 
 }
 
-$PathToHTMLTemplate = "https://baselinepolicy.blob.core.windows.net/images/email-template-alert.html"
 
 ###############################################################################################################
 ######                                         Install Modules                                           ######
