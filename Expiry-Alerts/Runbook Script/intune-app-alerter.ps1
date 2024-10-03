@@ -426,6 +426,37 @@ foreach ($app in $Applications) {
           $secretdisplayName = $null
       }
   }
+  $app.keycredentials | foreach-object {
+    #If there is a secret with a enddatetime, we need to get the expiration of each one
+    if ($_.endDateTime -ne $null) {
+        [system.string]$certdisplayname = $_.displayName
+        [system.string]$id = $app.id
+        [system.string]$displayname = $app.displayName
+        $Date = [TimeZoneInfo]::ConvertTimeBySystemTimeZoneId($_.endDateTime, 'Central Standard Time')
+        [int32]$daysUntilExpiration = (New-TimeSpan -Start ([System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId([DateTime]::Now, "Central Standard Time")) -End $Date).Days
+        
+        if (($daysUntilExpiration -ne $null) -and ($daysUntilExpiration -le $expirationDays)) {
+            $array += $_ | Select-Object @{
+                name = "id"; 
+                expr = { $id } 
+            }, 
+            @{
+                name = "displayName"; 
+                expr = { $displayName } 
+            }, 
+            @{
+                name = "secretName"; 
+                expr = { $certdisplayname } 
+            },
+            @{
+                name = "daysUntil"; 
+                expr = { $daysUntilExpiration } 
+            }
+        }
+        $daysUntilExpiration = $null
+        $certdisplayname = $null
+    }
+}
 }
 
 write-output "Checks complete"
