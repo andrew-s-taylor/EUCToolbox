@@ -5490,6 +5490,7 @@ return $policy, $uri, $oldname, $assignments
     $uri = "https://graph.microsoft.com/beta/organization"
     $tenantdetails = (Invoke-MgGraphRequest -Uri $uri -Method Get -OutputType PSObject).value
     $domain = ($tenantdetails.VerifiedDomains | Where-Object isDefault -eq $true).name
+    $currentdomain = $domain
 
 ###############################################################################################################
 ######                                          Grab the Profiles                                        ######
@@ -6217,6 +6218,7 @@ Disconnect-MgGraph
     $uri = "https://graph.microsoft.com/beta/organization"
     $tenantdetails = (Invoke-MgGraphRequest -Uri $uri -Method Get -OutputType PSObject).value
     $domain = ($tenantdetails.VerifiedDomains | Where-Object isDefault -eq $true).name
+    $newdomain = ($tenantdetails.VerifiedDomains | Where-Object isDefault -eq $true).name
 
 ###############################################################################################################
 ######                                          Grab the Profiles                                        ######
@@ -7642,6 +7644,8 @@ else {
 $policyname = $change.Name
 $policyjson = $change.Source
 $policyjson = $policyjson -replace $tenant, $secondtenant 
+$policyjson = $policyjson -replace $currentdomain, $newdomain 
+
 write-output "Updating $policyname"
 if ($type -eq "Update") {
 
