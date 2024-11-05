@@ -16,12 +16,12 @@ None
 .OUTPUTS
 Creates a log file in %Temp%
 .NOTES
-  Version:        7.0.9
+  Version:        7.0.11
   Author:         Andrew Taylor
   Twitter:        @AndrewTaylor_2
   WWW:            andrewstaylor.com
   Creation Date:  24/11/2022
-  Updated: 21/10/2024
+  Updated: 05/11/2024
   Purpose/Change: Initial script development
   Change: Added support for W365 Provisioning Policies
   Change: Added support for W365 User Settings Policies
@@ -82,13 +82,15 @@ Creates a log file in %Temp%
   Change: Fixed issue with named locations in CA policies
   Change: Added support for token refresh (thanks to https://github.com/FerryBodijn)
   Change: When used with Live Migration, it will replace both tenant ID and tenant name in the JSON
+  Change: Fixed error in rename
+  Change: Fixed commit message error
 
   .EXAMPLE
 N/A
 #>
 
 <#PSScriptInfo
-.VERSION 7.0.9
+.VERSION 7.0.11
 .GUID 4bc67c81-0a03-4699-8313-3f31a9ec06ab
 .AUTHOR AndrewTaylor
 .COMPANYNAME 
@@ -250,7 +252,7 @@ if ($idcheck -eq $true) {
 
 ## Change the below to "yes" if you want to change the name of the policies when restoring to Name - restore - date
 if ($rename -eq "yes") {
-    $changename -eq "yes"
+    $changename = "yes"
 }
 else {
 $changename = "no"
@@ -6539,7 +6541,7 @@ if ($templatecheck -eq "yes") {
     }
 else {
     if (($namecheck -ne $true) -and ($idcheck -ne $true)) {
-        $backupreason = "Automated Backup on $id"
+        $backupreason = "Automated Backup on $tenant"
     } else {
 ##Prompt for Message
 [void][Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic')
@@ -7246,8 +7248,8 @@ $tempconfigout = ($tempconfig2 | ConvertTo-Json -Depth 100).replace("\u0027","'"
 # SIG # Begin signature block
 # MIIoEwYJKoZIhvcNAQcCoIIoBDCCKAACAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCBPAF2J7gxlCg7G
-# hIxS5Qmo754hUcH3fNgJK2rlRpbXsKCCIRYwggWNMIIEdaADAgECAhAOmxiO+dAt
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCDYw0clKoSP/U53
+# uPOF9czs6FPoxtCeFTjfNu5Yhkh6X6CCIRYwggWNMIIEdaADAgECAhAOmxiO+dAt
 # 5+/bUOIIQBhaMA0GCSqGSIb3DQEBDAUAMGUxCzAJBgNVBAYTAlVTMRUwEwYDVQQK
 # EwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAiBgNV
 # BAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yMjA4MDEwMDAwMDBa
@@ -7429,33 +7431,33 @@ $tempconfigout = ($tempconfig2 | ConvertTo-Json -Depth 100).replace("\u0027","'"
 # IFJTQTQwOTYgU0hBMzg0IDIwMjEgQ0ExAhAIsZ/Ns9rzsDFVWAgBLwDpMA0GCWCG
 # SAFlAwQCAQUAoIGEMBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcN
 # AQkDMQwGCisGAQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUw
-# LwYJKoZIhvcNAQkEMSIEIP+OOPZvDsRkILxJJ9Ej22C1xexjwy0oO7dBSuurxdHL
-# MA0GCSqGSIb3DQEBAQUABIICABJIlrEpEByrPFbbQBBQGGd7Ksc1yPGytHoU4h4s
-# fa1SE0M43nyWwJY2cX32SrY3do9ldQO+HXcU8wAT1WkVagIf8oi/2GbZ5C8bTtyf
-# VhP9flAPyorO59HCUYuYrZO/iDc0L++wY7W8ButHna5A7bRK+8Cjp9OaefEJTiDC
-# s/3xfP4T76qJMxhUHLIyUUjSuvmcBNMmKFiaitlAlQ12ppJRWPJdcLRgHzFKmN+i
-# UwouyACfsrbAytAUVWD/Mh3nJF14oMpm9ZwZYD/9ui3my/fIggE4i5wDq7KWmg5y
-# zJ0Yop5r96tdGrewJ2dVWh1B+C9JX4rPmG7YI8zHD7LXHOXrgn1VfX/XCF3Qi20Z
-# RpGWxN8GHGIbg3cjxLNkVdpsTsHwaY7Mmwn772iDWRdgONK7p4sDmZgCEEjyWKMT
-# K/6asRWtBWoCbz6PgeA4XQfvQz42+55RimqJJkZvaR+t/EdOSiACVwF6zwEzet+i
-# W6QCc9Y9yLrO1/VXcvsfFctX6AOQcvcWNGUbm/xGDdZo6fBOTOEmXSODEWHgrh42
-# iykt+3B4Gs9YiU2wI/HgUkhswQR/3r0XuIpRP0G9MKacBx6n6S2598B0yU0+1T4m
-# Yr1fYNOdctruxRzoJOTExITTtGOyelgbVqAWw199W3puTb7dTlVyJcEDjmk9/01X
-# 6M7VoYIDIDCCAxwGCSqGSIb3DQEJBjGCAw0wggMJAgEBMHcwYzELMAkGA1UEBhMC
+# LwYJKoZIhvcNAQkEMSIEIN1qDsz9L6c3rv+/vaIINsR1Ipe3aYtmUWXsXLk+7UoD
+# MA0GCSqGSIb3DQEBAQUABIICAAav6T4WsgcbwqUx2vDKnBtrPu18lrqv1UiBwmvF
+# I4LEA4pZcLe9/IAM2HOls3HC8YsfCz0FID2Pfb6rY0DvvDMRNa49NQRw4bylDRkL
+# JJcj4WM7LTFmpuLc6sPoiNjDwbpPHWxm3xkAeCD/RtKfDEWYxH2+pYitRIc64E51
+# VBgyNqX/YaehMqRywD4d5w8yJ2E66x4vOnhfjW+kPtVy5NheFeNXm0EMhBzaFV0/
+# H1unXTOED42qR0YhoaET4VE8K3XCK+E3Fej1ydUgNADPeywJFjBDBh0mRmkj6kqD
+# 0WZGJ7hUaRjIjWOQo9NtRjQ2pyjf3QV6qJXsSPKz1WwTMypzoMszoF9G229EnnPx
+# +CsjoKxFinCeSP0dEh1Gzf8uE9gH6IxsFaFL8Bi+RcwdJUtertzt9Bzu8ceBhxeC
+# IjeQios00djUAFcrWDOX3fZsUJKvchelSJu6mI4fRhEJk3zO7OorxB7IconmYaZO
+# jXDGfKlOWbFmRFRXzC109ehzRdmbHmZbJA3kKQThf0ojvdmTac3W4xXXtgWAC7b/
+# NylAxLLhU7oDaetceSVvEY79sf0QAxbGb+rWQPNOtqqhIhHo5FQCrtcdmmGxDlnk
+# EOJkdKfk+S3jvEZj4J/MhgC7Us3hlE6N8He+G9vIDAKhwOT4pOyHRwSVFeOOw1TF
+# fWQSoYIDIDCCAxwGCSqGSIb3DQEJBjGCAw0wggMJAgEBMHcwYzELMAkGA1UEBhMC
 # VVMxFzAVBgNVBAoTDkRpZ2lDZXJ0LCBJbmMuMTswOQYDVQQDEzJEaWdpQ2VydCBU
 # cnVzdGVkIEc0IFJTQTQwOTYgU0hBMjU2IFRpbWVTdGFtcGluZyBDQQIQC65mvFq6
 # f5WHxvnpBOMzBDANBglghkgBZQMEAgEFAKBpMBgGCSqGSIb3DQEJAzELBgkqhkiG
-# 9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI0MTAyMTA4NDc0NFowLwYJKoZIhvcNAQkE
-# MSIEIDiSQCDUbpBfOiMRaYUL7hueEsaY35jeN85sQt4BPWvvMA0GCSqGSIb3DQEB
-# AQUABIICAEGGF+wOlxjVcutxU2KXTeOfVOVIEQgxhUhNuVjFq6uIhih2I5zmSxGz
-# e+nIoWzH1xEvlEDpZVa6mhRj5Q/PP9vRW2j0J7UVGJB8HJQIxMvD0r2ZxZ1ZbFDp
-# q3kaGg6DhkbKdrylTJpuyCN0lbkODd+JqYD6oC4VzONzii/jZe0Kj1iC48x3TYid
-# 9xIcmda+xrNL+tfJmkPHriF57BjjEH1PcGszFIRhmoGncCLEcmGpCEVvT1gAf8hC
-# 2lblzo+p6xZtOSNig+nNcW4EyXgoCdxDBos+jJSDOXKGh5kuI3Rdau/pYjCPcU3X
-# pMAKbyP3fM3yJZqXzLxuTHJrAk1CtkZB5QncrbbFHvixI+cdtTYBr/J1n3PGXinh
-# lPf+aVzDyu1MPufYGCk1iehKgJcQST5DByZZBlOruqrIObNLtwdxZuAqyBhX7y/G
-# veGYr2olD1x16SWstmnE5fqLE0eh3nihzL0rv5YdrM9Popu4VGn0dENnCi+vthIY
-# 98mz6l253hYWxCbFlhzEEvGtBawdHMTZ91x7GTSyB8pMoF/gcr9GbOff0WYBlB8e
-# NwkC9a+CT3lpqfAcQPUfVSNMwE9Lm+SPEU8w+uyXmUkifgGqNv6m7h3Lc/YCuHeQ
-# oQ3eXV2LYZe7fMUQ6IjDq+xEjRCsRt7KpIAibKRiulgAchJTTnLf
+# 9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI0MTEwNTEwMDg1NVowLwYJKoZIhvcNAQkE
+# MSIEIFAx5fOlmot3eZPbOzFuZmYCiGswXm65p+HOC1MaAlTiMA0GCSqGSIb3DQEB
+# AQUABIICAJnuDRdjXnfGVZlZiHGT9INjNLpcbcMrKmpGNcs6Ab4s5iBtfpyAwZmw
+# 1o9bOw/nM2YR2kA24Z0HMCz9Y3TWsSWDVEViyplOzceipvaeIbKKCUEzurMXUkCA
+# udk/yqmaN51/XnHjinUWrTuMA7lVuHUp8rekvtg8ZJ493Da/O0UJ4rZzHsCVTPjL
+# WB2QarrqlQg/V9tAvXndWL1rTGacHGwlUl7I2JOakG5N91ar7Dr7cP+j0gffK5l9
+# 5QdNgWK3z6Z0XKptPhPrfOshjJR5WmmzFV4yBfaazkQ3YFhPlGidFuVurEq3bCjb
+# 8EPZ0zTWBemodDOzhBd4BW19J060q69YBnxaaM7Tta8iovFNS7zTELBOMdOpBu0H
+# 5oQhbQeBL0z6EOnUjyo5cbNATCJWm4GAUUsaG/IiZKehohi5J45WerlnlO9c7JGB
+# XwrEH8InamgGCxbQU9eFXYKcAByjdvHCuaxkY/Ph6nYYNBmICAshjcXF07hYoQmc
+# rhizxkrPtL77pQmwoLqDqf1WlE/k7mezj+mEq+Pzoi3PuKUstPpxbyI0Vqqu6TQ0
+# fkRumJki/ptxm51qs+/l7yPCjZjQdFGIkaks4uvHKhQT8Qd4qhabZT4J6gSeVG32
+# oc4DV/VDpXgSW6RGP7SgTjPRxv/zhXpxQA5LCNwBsV7DObZPJxTA
 # SIG # End signature block
