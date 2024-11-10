@@ -16,17 +16,18 @@ None
 .OUTPUTS
 N/A
 .NOTES
-  Version:        1.0.0
+  Version:        2.0.0
   Author:         Andrew Taylor
   WWW:            andrewstaylor.com
   Creation Date:  13/01/2024
   Purpose/Change: Initial script development
+  Change: 10/11/2024 - Switched to GitHub API Search to avoid API calls
   .EXAMPLE
 N/A
 #>
 
 <#PSScriptInfo
-.VERSION 1.0.0
+.VERSION 2.0.0
 .GUID 8d694a5a-bebb-4fb1-91ca-f84e207958d2
 .AUTHOR AndrewTaylor
 .COMPANYNAME 
@@ -6923,69 +6924,54 @@ else {
 }
 if ($repotype -eq "github") {
 
- $validfiles = @()
-    write-output "Finding Latest Backup Commit from Repo $reponame in $ownername GitHub"
-    writelog "Finding Latest Backup Commit from Repo $reponame in $ownername GitHub"
+# GitHub Search API URL to find commits by message with tenant ID
 
-    $uri = "https://api.github.com/repos/$ownername/$reponame/commits?per_page=100"
-    $events = @()
-    $page = 1
+$searchApiUrl = "https://api.github.com/search/commits?q=repo%3A$ownername/$reponame+Automated Backup on $gittenant&type=commits&sort=committer-date&order=desc"
 
-Do
-{
-    $response = Invoke-RestMethod -Headers @{'Authorization'='bearer '+$token;} -Uri "$uri&page=$page"
-    
-    foreach ($obj in $response)
-    {
-        $events += $obj.commit
-    }
-    
-    $page = $page + 1
+# Set up headers for authentication
+$headers = @{
+    Authorization = "token $token"
+    Accept        = "application/vnd.github.text-match+json"  # Cloak preview required for commit search API
 }
-While ($response.Count -gt 0)
 
-    ##$events = (Invoke-RestMethod -Uri $uri -Method Get -Headers @{'Authorization'='bearer '+$token;}).commit
-    $events2 = $events | Select-Object message, url | Where-Object {($_.message -notmatch "\blog\b") -and ($_.message -notmatch "\bdelete\b") -and ($_.message -notmatch "\bdaily\b") -and ($_.message -notmatch "\bdrift\b") -and ($_.message -notmatch "\btemplate\b")}        
-    ForEach ($event in $events2) 
-        {
-    $eventsuri = $event.url
-    $commitid = Split-Path $eventsuri -Leaf
-    $commituri = "https://api.github.com/repos/$ownername/$reponame/commits/$commitid"
-    $commitfilename2 = ((Invoke-RestMethod -Uri $commituri -Method Get -Headers @{'Authorization' = 'token ' + $token; 'Accept' = 'application/json' }).Files).raw_url
-    ##Grab the filename from the URL
-$raw_url = $commitfilename2
-    $commitfullname = [System.IO.Path]::GetFileName($raw_url)
-    if (![string]::IsNullOrEmpty($commitfullname)) {
-        $committenant = $commitfullname.Substring(0,36)
-    }
-    $commitfullname2 = $commitfullname -replace ".json", ""
-    if (![string]::IsNullOrEmpty($commitfullname2)) {
-    $last12digits = $commitfullname2.Substring($commitfullname2.Length-12)
-}
-    $DateTimeFormat = "yyMMddHHmmss"
-    try {
-        $DateTimeObject = [datetime]::ParseExact($last12digits, $DateTimeFormat, $null)
-    } catch {
-        # Do nothing if it fails
-    }
-    
-    if ($committenant -eq $gittenant -and $commitfullname -notmatch "\b(log|drift|golddrift|daily|intunereport|template)\b") {
-        ##If $commitfullname is empty, don't add it
-        if ($commitfullname -like "*$gittenant*") {
-        $commitObject = New-Object PSObject -Property @{
-            CommitFullName = $commitfullname
-            DateTime = $DateTimeObject
+# Make the API call to fetch commits with the specified tenant ID
+$response = Invoke-RestMethod -Uri $searchApiUrl -Headers $headers -Method Get
+
+
+
+# Get the most recent commit
+$latestCommit = $response.items | Select-Object -First 1
+
+if ($latestCommit) {
+    # Fetch commit details for file list
+    $commitSha = $latestCommit.sha
+    $commitApiUrl = "https://api.github.com/repos/$ownername/$reponame/commits/$commitSha"
+
+    # Fetch detailed commit information to retrieve files changed
+    $commitDetails = Invoke-RestMethod -Uri $commitApiUrl -Headers $headers -Method Get
+
+    $matchingFiles = $commitDetails.files | Where-Object { $_.filename -match $gittenant }
+
+     if ($matchingFiles) {
+        Write-Output "Latest commit for tenant ID $gittenant"
+        Write-Output "Commit SHA: $commitSha"
+        Write-Output "Message: $($latestCommit.commit.message)"
+        Write-Output "Date: $($latestCommit.commit.committer.date)"
+        Write-Output "Files containing the tenant ID:"
+
+        # List matching filenames
+        $matchingFiles | ForEach-Object {
+            Write-Output $_.filename
         }
-        $validfiles += $commitObject
+    } else {
+        Write-Output "No files containing the tenant ID were found in the latest commit."
     }
-
-    }
+} else {
+    Write-Output "No commits found for tenant ID $gittenant."
 }
-# Sort the $validfiles array on DateTime in descending order and select the most recent
-$mostRecentFile = $validfiles | Sort-Object DateTime -Descending | Select-Object -First 1
 
 # Retrieve the CommitFullName
-$commitfilename = $mostRecentFile.CommitFullName
+$commitfilename = $matchingFiles.filename
     
 
     
