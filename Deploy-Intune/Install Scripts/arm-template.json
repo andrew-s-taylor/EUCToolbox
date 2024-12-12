@@ -1,0 +1,252 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "automationAccountName": {
+            "type": "string",
+            "defaultValue": "Automation-EUCToolbox",
+            "metadata": {
+                "description": "EUCToolbox automation account name"
+            }
+        },
+        "automationRegion": {
+            "defaultValue": "uksouth",
+            "type": "string",
+            "allowedValues": [
+                "westeurope",
+                "southeastasia",
+                "eastus2",
+                "southcentralus",
+                "japaneast",
+                "northeurope",
+                "canadacentral",
+                "australiasoutheast",
+                "centralindia",
+                "westcentralus",
+                "uksouth",
+                "westus",
+                "eastus",
+                "westus2",
+                "centralus",
+                "northcentralus",
+                "eastasia",
+                "brazilsouth",
+                "australiaeast",
+                "australiacentral",
+                "southafricanorth",
+                "southafricawest"
+            ],
+            "metadata": {
+                "description": "Specify the region for your automation account"
+            }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Deploy-Intune/Runbook%20Script/Deploy-Intune-Script.ps1",
+            "metadata": {
+                "description": "URI to artifacts location"
+            }
+        },
+        "webhookname": {
+            "type": "string",
+            "defaultValue": "Intune Deploy Webhook",
+            "metadata": {
+                "description": "Webhook Name"
+            }
+        },
+        "runbookname": {
+            "type": "string",
+            "defaultValue": "Intune Deploy",
+            "metadata": {
+                "description": "Runbook Name"
+            }
+        },
+        "webhookExpiryTime": {
+            "type": "string",
+            "defaultValue": "2026-08-12T00:00:00Z", // Manually computed expiry date
+            "metadata": {
+                "description": "The expiry time of the webhook, set to a specific date."
+            }
+        },
+        "appName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the app service"
+            },
+            "defaultValue": "IntuneDeploy-EUCToolbox"
+        },
+        "gitRepoUrl": {
+            "type": "string",
+            "metadata": {
+                "description": "URL of the public git repository"
+            },
+            "defaultValue": "https://github.com/andrew-s-taylor/EUCToolbox"
+        }
+    },
+    "variables": {
+        "tmpToken11": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname'))]",
+        "tmpToken12": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname'))]",
+        "tmpToken21": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname'))]",
+        "tmpToken22": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname'))]",
+        "webhookTokenPart1": "[substring(format('{0}{1}', variables('tmpToken11'), variables('tmpToken12')), 0, 20)]",
+        "webhookTokenPart2": "[substring(format('{0}{1}', variables('tmpToken21'), variables('tmpToken22')), 0, 22)]",
+        "appServicePlanId": "[concat('appServicePlan-', uniqueString(resourceGroup().id))]"
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Automation/automationAccounts",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('automationAccountName')]",
+            "location": "[parameters('automationRegion')]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "disableLocalAuth": false,
+                "publicNetworkAccess": true,
+                "sku": {
+                    "name": "Free"
+                }
+            },
+            "resources": [
+                {
+                    "type": "Microsoft.Automation/automationAccounts/runbooks",
+                    "apiVersion": "2023-11-01",
+                    "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname'))]",
+                    "location": "[parameters('automationRegion')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+                    ],
+                    "properties": {
+                        "runbookType": "PowerShell",
+                        "logProgress": false,
+                        "logVerbose": false,
+                        "description": "IntuneDeployEUCToolbox",
+                        "publishContentLink": {
+                            "uri": "[parameters('_artifactsLocation')]"
+                        }
+                    }
+                },
+                {
+                    "type": "Microsoft.Automation/automationAccounts/webhooks",
+                    "apiVersion": "2015-10-31",
+                    "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname'))]",
+                    "properties": {
+                        "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]",
+                        "isEnabled": true,
+                        "expiryTime": "[parameters('WebhookExpiryTime')]",
+                        "runbook": {
+                            "name": "[parameters('runbookname')]"
+                        }
+                    },
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+                        "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname'))]"
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Authentication')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Authentication')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.DeviceManagement')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Automation/automationAccounts/modules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Groups')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+            ],
+            "properties": {
+                "contentLink": {
+                    "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Groups')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
+            "name": "[parameters('appName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "serverFarmId": "[variables('appServicePlanId')]",
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "PHP:8.3",
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 1
+                },
+                "repositorySiteConfig": {
+                    "branch": "master",
+                    "repositoryUrl": "[parameters('gitRepoUrl')]"
+                },
+                "reserved": true
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanId'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/extensions",
+            "apiVersion": "2021-03-01",
+            "name": "[concat(parameters('appName'), '/onedeploy')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+            ],
+            "properties": {
+                "packageUri": "https://github.com/andrew-s-taylor/EUCToolbox/raw/main/Deploy-Intune/Webpage%20Content.zip",
+                "type": "zip"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2021-02-01",
+            "name": "[variables('appServicePlanId')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "F1",
+                "tier": "Free",
+                "size": "F1",
+                "family": "F",
+                "capacity": 1
+            },
+            "properties": {
+                "name": "[variables('appServicePlanId')]",
+                "reserved": true
+            }
+        }
+    ],
+    "outputs": {
+        "webhookUri": {
+            "type": "string",
+            "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]"
+        }
+    }
+
+}

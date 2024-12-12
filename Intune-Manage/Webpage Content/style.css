@@ -1,0 +1,486 @@
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen, ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial, sans-serif;
+  font-size: 16px;
+}
+
+body {
+  background-color: #435165;
+  margin-bottom: 100px;
+  margin-top: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#menu {
+  position:relative;
+  float: left;
+  width: 15%;
+  margin-top: 30px;
+  align-items: left;
+}
+
+
+#menu a {
+  padding: 10px 20px; /* Increased padding */
+  text-decoration: none;
+  color: #161616;
+  font-weight: 500;
+  font-size: 16px;
+  display: block;
+  border: 1px solid #EB5D2F; /* Added border */
+  border-radius: 5px; /* Optional: to make the border corners rounded */
+  width:70%;
+  margin-left:20px;
+  margin-top:5px;
+}
+
+#menu a i {
+  font-size: 14px;
+  padding: 2px 8px 0 0;
+}
+
+#menu a:hover {
+  color: #EB5D2F;
+  background-color:white;
+}
+
+#title {
+  position: relative;
+  float: left;
+  width: 100%;
+  height: 40px;
+  padding-left: 100px;
+  color: white;
+  line-height: 40px;
+  background-image: url("websiteheader-transparent.png");
+  background-repeat: no-repeat;
+  background-position-x: center;
+  background-size: auto;
+}
+
+#footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;   /* Height of the footer */
+  background: #435165;
+  color: white;
+  text-align: center;
+}
+
+#footer a {
+  padding: 0 15px;
+  text-decoration: none;
+  color: #c1c4c8;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+
+#footer a:hover {
+  color: #eaebed;
+}
+
+.login, .register {
+  width: 400px;
+  background-color: #ffffff;
+  box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.3);
+  margin: 100px auto;
+}
+
+.login h1, .register h1 {
+  text-align: center;
+  color: #5b6574;
+  font-size: 24px;
+  padding: 20px 0 20px 0;
+  border-bottom: 1px solid #dee0e4;
+}
+
+.login .links, .register .links {
+  display: flex;
+  padding: 0 15px;
+}
+
+.login .links a, .register .links a {
+  color: #9da3ac;
+  text-decoration: none;
+  display: inline-flex;
+  padding: 0 10px 10px 10px;
+  font-weight: 500;
+}
+
+.login .links a:hover, .register .links a:hover {
+  color: #9da3ac;
+}
+
+.login .links a.active, .register .links a.active {
+  border-bottom: 3px solid #435165;
+  color: #EB5D2F;
+}
+
+.login form, .register form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding-top: 20px;
+}
+
+.login form label, .register form label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12%;
+  height: 50px;
+  background-color: #EB5D2F;
+  color: #435165;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.login form input[type="password"], .login form input[type="text"], .login form input[type="email"], .register form input[type="password"], .register form input[type="text"], .register form input[type="email"] {
+  width: 80%;
+  height: 50px;
+  border: 1px solid #dee0e4;
+  border-left: 0;
+  margin-bottom: 20px;
+  padding: 0 15px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  outline: 0;
+}
+
+.login form input[type="password"]::placeholder, .login form input[type="text"]::placeholder, .login form input[type="email"]::placeholder, .register form input[type="password"]::placeholder, .register form input[type="text"]::placeholder, .register form input[type="email"]::placeholder {
+  color: #8e97a3;
+}
+
+.login form input[type="password"]:focus, .login form input[type="text"]:focus, .login form input[type="email"]:focus, .register form input[type="password"]:focus, .register form input[type="text"]:focus, .register form input[type="email"]:focus {
+  border: 1px solid #c2c6cd;
+  border-left: 0;
+}
+
+.login form input[type="submit"], .register form input[type="submit"] {
+  width: 100%;
+  padding: 15px;
+  margin-top: 20px;
+  background-color: #EB5D2F;
+  border: 0;
+  cursor: pointer;
+  font-weight: 500;
+  color: #435165;
+  transition: background-color 0.2s;
+  border-radius: 0;
+  appearance: none;
+}
+
+.login form input[type="submit"]:hover, .register form input[type="submit"]:hover {
+  background-color: #af4724;
+  transition: background-color 0.2s;
+}
+
+.login form #rememberme, .register form #rememberme {
+  width: 100%;
+  height: auto;
+  padding: 5px 20px;
+  background-color: transparent;
+  color: #000;
+  justify-content: flex-start;
+}
+
+.login form #rememberme input, .register form #rememberme input {
+  transform: scale(1.3);
+  margin-right: 7px;
+}
+
+.login form .msg, .register form .msg {
+  padding: 0 20px;
+  width: 100%;
+}
+
+.login form .captcha, .register form .captcha {
+  display: flex;
+}
+
+.login form .fb-btn, .login form .gl-btn, .register form .fb-btn, .register form .gl-btn {
+  display: flex;
+  text-decoration: none;
+  position: relative;
+  border-radius: 4px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 500;
+  font-size: 14px;
+  width: 92%;
+  margin: 15px 0 5px 0;
+  padding: 15px;
+  transition: background-color 0.2s;
+}
+
+.login form .fb-btn i, .login form .gl-btn i, .register form .fb-btn i, .register form .gl-btn i {
+  position: absolute;
+  left: 15px;
+}
+
+.login form .fb-btn:hover, .login form .gl-btn:hover, .register form .fb-btn:hover, .register form .gl-btn:hover {
+  color: #fff;
+  transition: background-color 0.2s;
+}
+
+.login form .fb-btn, .register form .fb-btn {
+  background-color: #EB5D2F;
+}
+
+.login form .fb-btn:hover, .register form .fb-btn:hover {
+  background-color: #af4724;
+}
+
+.login form .gl-btn, .register form .gl-btn {
+  background-color: #EB5D2F;
+}
+
+.login form .gl-btn:hover, .register form .gl-btn:hover {
+  background-color: #af4724;
+}
+
+.login form > a, .register form > a {
+  text-decoration: none;
+  color: #5b6574;
+  width: 100%;
+  padding: 5px 20px;
+}
+
+.login form > a:hover, .register form > a:hover {
+  color: #394049;
+}
+
+.header {
+  background-color: #2f3947;
+  height: 60px;
+  width: 100%;
+}
+
+
+
+.header .wrapper {
+  display: flex;
+  position: relative;
+  margin: 0 auto;
+  width: 70%;
+  height: 100%;
+}
+
+.header .wrapper h1, .header .wrapper a, .header .wrapper label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.header .wrapper h1 {
+  flex: 1;
+  font-size: 20px;
+  padding: 0;
+  margin: 0;
+  color: #eaebed;
+  font-weight: normal;
+}
+
+.header .wrapper label, .header .wrapper input[type="checkbox"] {
+  display: none;
+}
+
+.header .wrapper label {
+  justify-content: center;
+  width: 60px;
+  border-left: 1px solid #272f3b;
+  cursor: pointer;
+}
+
+.header .wrapper label i {
+  color: #fff;
+}
+
+.header .wrapper label:hover i, .header .wrapper label:active i {
+  color: #eaebed;
+}
+
+.header .wrapper .menu {
+  display: flex;
+  align-items: center;
+}
+
+.header .wrapper .menu a {
+  padding: 0 15px;
+  text-decoration: none;
+  color: #c1c4c8;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.header .wrapper .menu a i {
+  font-size: 14px;
+  padding: 2px 8px 0 0;
+}
+
+.header .wrapper .menu a:hover {
+  color: #eaebed;
+}
+
+body.loggedin {
+  background-color: #f3f4f7;
+}
+
+.content {
+  width: 70%;
+  margin: 0 auto;
+}
+
+.content h2 {
+  margin: 0;
+  padding: 25px 0;
+  font-size: 20px;
+  border-bottom: 1px solid #e0e0e3;
+  color: #4a536e;
+}
+
+.content .block {
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  margin: 25px 0;
+  padding: 25px;
+  background-color: #fff;
+}
+
+.content .block p {
+  padding: 5px;
+  margin: 0 0 10px 0;
+}
+
+.content.profile form label {
+  display: block;
+  padding: 15px 0 10px 0;
+  font-weight: 500;
+  font-size: 14px;
+  color: #4d4d4d;
+}
+
+.content.profile form input[type="text"], .content.profile form input[type="password"], .content.profile form input[type="email"] {
+  padding: 10px;
+  width: 250px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.content.profile .profile-detail {
+  padding: 5px;
+}
+
+.content.profile .profile-detail strong {
+  display: inline-block;
+  color: #777;
+  min-width: 120px;
+  font-size: 16px;
+}
+
+.content.profile .profile-detail i {
+  width: 28px;
+  color: #aaabad;
+}
+
+.content.profile .profile-btn {
+  display: inline-block;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  color: #fff;
+  background-color: #EB5D2F;
+  margin: 0px 5px 0 0;
+  padding: 10px 15px;
+  border-radius: 4px;
+  appearance: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.content.profile .profile-btn:hover {
+  background-color: #af4724;
+}
+
+@media screen and (max-width: 400px) {
+  .login, .register {
+    width: 95%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .header .wrapper {
+    width: 100%;
+  }
+  .header .wrapper h1 {
+    font-size: 18px;
+    padding: 10px;
+  }
+  .header .wrapper label {
+    display: inline-flex;
+  }
+  .header .wrapper .menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+    flex-flow: column;
+    background-color: #252d38;
+    justify-items: flex-start;
+    align-items: flex-start;
+  }
+  .header .wrapper input[type="checkbox"]:checked ~ .menu {
+    display: flex;
+  }
+  .header .wrapper input[type="checkbox"]:checked ~ .menu a {
+    width: 100%;
+    padding: 15px 17px;
+    border-bottom: 1px solid #1f252e;
+  }
+  .content {
+    padding: 5px 10px;
+    width: 100%;
+  }
+  .content form input[type="text"], .content form input[type="password"], .content form input[type="email"] {
+    width: 100%;
+    max-width: 100%;
+  }
+  .profile-detail strong {
+    width: 100%;
+  }
+}
+.styled-table {
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  font-family: sans-serif;
+  min-width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+  background-color: #EB5D2F;
+  color: #ffffff;
+  text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid #EB5D2F;
+}

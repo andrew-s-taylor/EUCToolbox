@@ -1,0 +1,977 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "administratorLogin": {
+      "type": "string"
+    },
+    "administratorLoginPassword": {
+      "type": "securestring"
+    },
+    "firewallRules": {
+      "type": "array",
+      "defaultValue": [
+        {
+          "name": "rule1",
+          "startIPAddress": "192.168.0.1",
+          "endIPAddress": "192.168.0.255"
+        },
+        {
+          "name": "rule2",
+          "startIPAddress": "0.0.0.0",
+          "endIPAddress": "0.0.0.0"
+        }
+      ]
+    },
+    "serverEdition": {
+      "type": "string",
+      "defaultValue": "Burstable",
+      "allowedValues": [
+        "Burstable",
+        "GeneralPurpose",
+        "MemoryOptimized"
+      ],
+      "metadata": {
+        "description": "The tier of the specific SKU. High availability is available only for GeneralPurpose and MemoryOptimized SKUs."
+      }
+    },
+    "version": {
+      "type": "string",
+      "defaultValue": "8.0.21",
+      "allowedValues": [
+        "5.7",
+        "8.0.21"
+      ],
+      "metadata": {
+        "description": "Server version"
+      }
+    },
+    "availabilityZone": {
+      "type": "string",
+      "defaultValue": "1",
+      "metadata": {
+        "description": "The availability zone information of the server. (If you don't have a preference, leave this setting blank.)"
+      }
+    },
+    "haEnabled": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "allowedValues": [
+        "Disabled",
+        "SameZone",
+        "ZoneRedundant"
+      ],
+      "metadata": {
+        "description": "High availability mode for a server: Disabled, SameZone, or ZoneRedundant."
+      }
+    },
+    "standbyAvailabilityZone": {
+      "type": "string",
+      "defaultValue": "2",
+      "metadata": {
+        "description": "The availability zone of the standby server."
+      }
+    },
+    "storageSizeGB": {
+      "type": "int",
+      "defaultValue": 20
+    },
+    "storageIops": {
+      "type": "int",
+      "defaultValue": 360
+    },
+    "storageAutogrow": {
+      "type": "string",
+      "defaultValue": "Enabled",
+      "allowedValues": [
+        "Enabled",
+        "Disabled"
+      ]
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard_B1ms",
+      "metadata": {
+        "description": "The name of the SKU. For example, Standard_D32ds_v4."
+      }
+    },
+    "backupRetentionDays": {
+      "type": "int",
+      "defaultValue": 7
+    },
+    "geoRedundantBackup": {
+      "type": "string",
+      "defaultValue": "Disabled",
+      "allowedValues": [
+        "Disabled",
+        "Enabled"
+      ]
+    },
+    "serverName": {
+      "type": "string",
+      "defaultValue": "intunemanagesql"
+    },
+    "databaseName": {
+      "type": "string",
+      "defaultValue": "intunemanagedb"
+    },
+    "automationAccountName": {
+      "type": "string",
+      "defaultValue": "Automation-EUCToolbox",
+      "metadata": {
+        "description": "EUCToolbox automation account name"
+      }
+    },
+    "automationRegion": {
+      "defaultValue": "uksouth",
+      "type": "string",
+      "allowedValues": [
+        "westeurope",
+        "southeastasia",
+        "eastus2",
+        "southcentralus",
+        "japaneast",
+        "northeurope",
+        "canadacentral",
+        "australiasoutheast",
+        "centralindia",
+        "westcentralus",
+        "uksouth",
+        "westus",
+        "eastus",
+        "westus2",
+        "centralus",
+        "northcentralus",
+        "eastasia",
+        "brazilsouth",
+        "australiaeast",
+        "australiacentral",
+        "southafricanorth",
+        "southafricawest"
+      ],
+      "metadata": {
+        "description": "Specify the region for your automation account"
+      }
+    },
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Manage-Intune/Runbook%20Script/intune-backup-restore-withgui.ps1",
+      "metadata": {
+        "description": "URI to artifacts location"
+      }
+    },
+    "_artifactsLocation1": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Manage-Intune/Runbook%20Script/monitor-drift.ps1",
+      "metadata": {
+        "description": "URI to artifacts location"
+      }
+    },
+    "_artifactsLocation2": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Manage-Intune/Runbook%20Script/Daily-Checks-Runbook.ps1",
+      "metadata": {
+        "description": "URI to artifacts location"
+      }
+    },
+    "_artifactsLocation3": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Manage-Intune/Runbook%20Script/Intune-Security-Report.ps1",
+      "metadata": {
+        "description": "URI to artifacts location"
+      }
+    },
+    "_artifactsLocation4": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/main/Manage-Intune/Runbook%20Script/app-deploy-runbook.ps1",
+      "metadata": {
+        "description": "URI to artifacts location"
+      }
+    },
+    "webhookname1": {
+      "type": "string",
+      "defaultValue": "BackupRestore Webhook",
+      "metadata": {
+        "description": "Webhook Name BackupRestore"
+      }
+    },
+    "webhookname2": {
+      "type": "string",
+      "defaultValue": "DriftMonitor Webhook",
+      "metadata": {
+        "description": "Webhook name DriftMonitor"
+      }
+    },
+    "runbookname1": {
+      "type": "string",
+      "defaultValue": "BackupRestore",
+      "metadata": {
+        "description": "Runbook Name BackupRestore"
+      }
+    },
+    "runbookname2": {
+      "type": "string",
+      "defaultValue": "DriftMonitor",
+      "metadata": {
+        "description": "Runbook name DriftMonitor"
+      }
+    },
+    "webhookname3": {
+      "type": "string",
+      "defaultValue": "Daily Checks Webhook",
+      "metadata": {
+        "description": "Webhook Name"
+      }
+    },
+    "runbookname3": {
+      "type": "string",
+      "defaultValue": "Daily Checks",
+      "metadata": {
+        "description": "Runbook Name"
+      }
+    },
+    "webhookname4": {
+      "type": "string",
+      "defaultValue": "Security Report Webhook",
+      "metadata": {
+        "description": "Webhook Name"
+      }
+    },
+    "runbookname4": {
+      "type": "string",
+      "defaultValue": "Security Report",
+      "metadata": {
+        "description": "Runbook Name"
+      }
+    },
+    "webhookname5": {
+      "type": "string",
+      "defaultValue": "Community App Deployment Webhook",
+      "metadata": {
+        "description": "Webhook Name community"
+      }
+    },
+    "runbookname5": {
+      "type": "string",
+      "defaultValue": "Community App Deployment",
+      "metadata": {
+        "description": "Runbook Name community"
+      }
+    },
+    "webhookExpiryTime": {
+      "type": "string",
+      "defaultValue": "2026-08-12T00:00:00Z", // Manually computed expiry date
+      "metadata": {
+        "description": "The expiry time of the webhook, set to a specific date."
+      }
+    },
+    "appName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the app service"
+      },
+      "defaultValue": "IntuneBackup-EUCToolbox"
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account."
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the blob container."
+      }
+    },
+    "gitRepoUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "URL of the public git repository"
+      },
+      "defaultValue": "https://github.com/andrew-s-taylor/EUCToolbox"
+    },
+    "workflows_crontest_name": {
+      "defaultValue": "BackupCron",
+      "type": "String"
+    }
+
+  },
+  "variables": {
+    "tmpToken11": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname1'))]",
+    "tmpToken12": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname1'))]",
+    "tmpToken21": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname1'))]",
+    "tmpToken22": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname1'))]",
+    "webhookTokenPart1": "[substring(format('{0}{1}', variables('tmpToken11'), variables('tmpToken12')), 0, 20)]",
+    "webhookTokenPart2": "[substring(format('{0}{1}', variables('tmpToken21'), variables('tmpToken22')), 0, 22)]",
+    "tmpToken31": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname2'))]",
+    "tmpToken32": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname2'))]",
+    "tmpToken41": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname2'))]",
+    "tmpToken42": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname2'))]",
+    "webhookTokenPart3": "[substring(format('{0}{1}', variables('tmpToken31'), variables('tmpToken32')), 0, 20)]",
+    "webhookTokenPart4": "[substring(format('{0}{1}', variables('tmpToken41'), variables('tmpToken42')), 0, 22)]",
+    "tmpToken51": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname3'))]",
+    "tmpToken52": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname3'))]",
+    "tmpToken61": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname3'))]",
+    "tmpToken62": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname3'))]",
+    "webhookTokenPart5": "[substring(format('{0}{1}', variables('tmpToken51'), variables('tmpToken52')), 0, 20)]",
+    "webhookTokenPart6": "[substring(format('{0}{1}', variables('tmpToken61'), variables('tmpToken62')), 0, 22)]",
+    "tmpToken71": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname4'))]",
+    "tmpToken72": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname4'))]",
+    "tmpToken81": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname4'))]",
+    "tmpToken82": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname4'))]",
+    "webhookTokenPart7": "[substring(format('{0}{1}', variables('tmpToken71'), variables('tmpToken72')), 0, 20)]",
+    "webhookTokenPart8": "[substring(format('{0}{1}', variables('tmpToken81'), variables('tmpToken82')), 0, 22)]",
+    "tmpToken91": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('webhookname5'))]",
+    "tmpToken92": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('webhookname5'))]",
+    "tmpToken101": "[uniqueString(subscription().id, resourceGroup().id, parameters('automationAccountName'), parameters('runbookname5'))]",
+    "tmpToken102": "[uniqueString(resourceGroup().id, parameters('automationAccountName'), parameters('runbookname5'))]",
+    "webhookTokenPart9": "[substring(format('{0}{1}', variables('tmpToken91'), variables('tmpToken92')), 0, 20)]",
+    "webhookTokenPart10": "[substring(format('{0}{1}', variables('tmpToken101'), variables('tmpToken102')), 0, 22)]",
+
+
+
+    "appServicePlanId": "[concat('appServicePlan-', uniqueString(resourceGroup().id))]"
+
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2023-11-01",
+      "name": "[parameters('automationAccountName')]",
+      "location": "[parameters('automationRegion')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "disableLocalAuth": false,
+        "publicNetworkAccess": true,
+        "sku": {
+          "name": "Free"
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Automation/automationAccounts/runbooks",
+          "apiVersion": "2023-11-01",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname1'))]",
+          "location": "[parameters('automationRegion')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Intune Backup Restore",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation')]"
+            }
+          }
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/webhooks",
+          "apiVersion": "2015-10-31",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname1'))]",
+          "properties": {
+            "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]",
+            "isEnabled": true,
+            "expiryTime": "[parameters('WebhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname1')]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname1'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/runbooks",
+          "apiVersion": "2023-11-01",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname2'))]",
+          "location": "[parameters('automationRegion')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Intune Drift Check",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation1')]"
+            }
+          }
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/webhooks",
+          "apiVersion": "2015-10-31",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname2'))]",
+          "properties": {
+            "isEnabled": true,
+            "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart3'), variables('webhookTokenPart4'))]",
+            "expiryTime": "[parameters('WebhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname2')]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/runbooks",
+          "apiVersion": "2023-11-01",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname3'))]",
+          "location": "[parameters('automationRegion')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Daily Checks",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation2')]"
+            }
+          }
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/webhooks",
+          "apiVersion": "2015-10-31",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname3'))]",
+          "properties": {
+            "isEnabled": true,
+            "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart5'), variables('webhookTokenPart6'))]",
+            "expiryTime": "[parameters('WebhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname3')]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname2'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/runbooks",
+          "apiVersion": "2023-11-01",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname4'))]",
+          "location": "[parameters('automationRegion')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "SecurityChecksEUCToolbox",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation3')]"
+            }
+          }
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/webhooks",
+          "apiVersion": "2015-10-31",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname4'))]",
+          "properties": {
+            "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart7'), variables('webhookTokenPart8'))]",
+            "isEnabled": true,
+            "expiryTime": "[parameters('WebhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname4')]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname4'))]"
+          ]
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/runbooks",
+          "apiVersion": "2023-11-01",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('runbookname5'))]",
+          "location": "[parameters('automationRegion')]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+          ],
+          "properties": {
+            "runbookType": "PowerShell",
+            "logProgress": false,
+            "logVerbose": false,
+            "description": "Deploys Winget community apps",
+            "publishContentLink": {
+              "uri": "[parameters('_artifactsLocation4')]"
+            }
+          }
+        },
+        {
+          "type": "Microsoft.Automation/automationAccounts/webhooks",
+          "apiVersion": "2015-10-31",
+          "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('webhookname5'))]",
+          "properties": {
+            "uri": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart9'), variables('webhookTokenPart10'))]",
+            "isEnabled": true,
+            "expiryTime": "[parameters('WebhookExpiryTime')]",
+            "runbook": {
+              "name": "[parameters('runbookname5')]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+            "[resourceId('Microsoft.Automation/automationAccounts/runbooks', parameters('automationAccountName'), parameters('runbookname5'))]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Authentication')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Authentication')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.DeviceManagement')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.DeviceManagement')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Groups')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Groups')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Devices.CorporateManagement')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Devices.CorporateManagement')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/Microsoft.Graph.Identity.SignIns')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/Microsoft.Graph.Identity.SignIns')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/IntuneWin32App')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/IntuneWin32App')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/powershell-yaml')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/powershell-yaml')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2023-11-01",
+      "name": "[concat(parameters('automationAccountName'), '/SvRooij.ContentPrep.Cmdlet')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ],
+      "properties": {
+        "contentLink": {
+          "uri": "[concat('https://www.powershellgallery.com/api/v2/package', '/SvRooij.ContentPrep.Cmdlet')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "accessTier": "Hot",
+        "allowBlobPublicAccess": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-04-01",
+      "name": "[concat(parameters('storageAccountName'), '/default/', parameters('containerName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+      ],
+      "properties": {
+        "publicAccess": "Blob"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-03-01",
+      "name": "[parameters('appName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "serverFarmId": "[variables('appServicePlanId')]",
+        "siteConfig": {
+          "numberOfWorkers": 1,
+          "linuxFxVersion": "PHP:8.3",
+          "acrUseManagedIdentityCreds": false,
+          "alwaysOn": false,
+          "http20Enabled": false,
+          "functionAppScaleLimit": 0,
+          "minimumElasticInstanceCount": 1
+        },
+        "repositorySiteConfig": {
+          "branch": "master",
+          "repositoryUrl": "[parameters('gitRepoUrl')]"
+        },
+        "reserved": true
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanId'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/extensions",
+      "apiVersion": "2021-03-01",
+      "name": "[concat(parameters('appName'), '/onedeploy')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('appName'))]"
+      ],
+      "properties": {
+                "packageUri": "https://github.com/andrew-s-taylor/EUCToolbox/raw/main/Manage-Intune/Webpage%20Content.zip",
+        "type": "zip"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2021-02-01",
+      "name": "[variables('appServicePlanId')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "F1",
+        "tier": "Free",
+        "size": "F1",
+        "family": "F",
+        "capacity": 1
+      },
+      "properties": {
+        "name": "[variables('appServicePlanId')]",
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[parameters('serverName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[parameters('serverEdition')]"
+      },
+      "properties": {
+        "version": "[parameters('version')]",
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+        "availabilityZone": "[parameters('availabilityZone')]",
+        "highAvailability": {
+          "mode": "[parameters('haEnabled')]",
+          "standbyAvailabilityZone": "[parameters('standbyAvailabilityZone')]"
+        },
+        "storage": {
+          "storageSizeGB": "[parameters('storageSizeGB')]",
+          "iops": "[parameters('storageIops')]",
+          "autoGrow": "[parameters('storageAutogrow')]"
+        },
+        "backup": {
+          "backupRetentionDays": "[parameters('backupRetentionDays')]",
+          "geoRedundantBackup": "[parameters('geoRedundantBackup')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.DBforMySQL/flexibleServers/databases",
+      "apiVersion": "2021-12-01-preview",
+      "name": "[format('{0}/{1}', parameters('serverName'), parameters('databaseName'))]",
+      "properties": {
+        "charset": "utf8",
+        "collation": "utf8_general_ci"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "createFirewallRules",
+        "count": "[length(range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1)))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('firewallRules-{0}', range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1))[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ip": {
+            "value": "[parameters('firewallRules')[range(0, if(greater(length(parameters('firewallRules')), 0), length(parameters('firewallRules')), 1))[copyIndex()]]]"
+          },
+          "serverName": {
+            "value": "[parameters('serverName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "serverName": {
+              "type": "string"
+            },
+            "ip": {
+              "type": "object"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DBforMySQL/flexibleServers/firewallRules",
+              "apiVersion": "2021-12-01-preview",
+              "name": "[format('{0}/{1}', parameters('serverName'), parameters('ip').name)]",
+              "properties": {
+                "startIpAddress": "[parameters('ip').startIPAddress]",
+                "endIpAddress": "[parameters('ip').endIPAddress]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_crontest_name')]",
+      "location": "[parameters('automationRegion')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "interval": 1,
+                "frequency": "Day",
+                "schedule": {
+                  "hours": [
+                    "23"
+                  ],
+                  "minutes": [
+                    59
+                  ]
+                }
+              },
+              "evaluatedRecurrence": {
+                "interval": 1,
+                "frequency": "Day",
+                "schedule": {
+                  "hours": [
+                    "23"
+                  ],
+                  "minutes": [
+                    59
+                  ]
+                }
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "HTTP": {
+              "runAfter": {},
+              "type": "Http",
+              "inputs": {
+                "uri": "[concat('https://', reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName, '/cron.php')]",
+                "method": "GET"
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {}
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2017-07-01",
+      "name": "[parameters('workflows_crontest_name')]",
+      "location": "[parameters('automationRegion')]",
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "Recurrence": {
+              "recurrence": {
+                "interval": 1,
+                "frequency": "Day",
+                "schedule": {
+                  "hours": [
+                    "23"
+                  ],
+                  "minutes": [
+                    59
+                  ]
+                }
+              },
+              "evaluatedRecurrence": {
+                "interval": 1,
+                "frequency": "Day",
+                "schedule": {
+                  "hours": [
+                    "23"
+                  ],
+                  "minutes": [
+                    59
+                  ]
+                }
+              },
+              "type": "Recurrence"
+            }
+          },
+          "actions": {
+            "HTTP": {
+              "runAfter": {},
+              "type": "Http",
+              "inputs": {
+                "uri": "[concat('https://', reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName, '/cronapi.php')]",
+                "method": "GET"
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            }
+          },
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {}
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "backuprestoreuri": {
+      "type": "string",
+      "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart1'), variables('webhookTokenPart2'))]"
+    },
+    "driftcheckuri": {
+      "type": "string",
+      "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart3'), variables('webhookTokenPart4'))]"
+    },
+    "dailycheckuri": {
+      "type": "string",
+      "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart5'), variables('webhookTokenPart6'))]"
+    },
+    "securitycheckuri": {
+      "type": "string",
+      "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart7'), variables('webhookTokenPart8'))]"
+    },
+    "appdeployuri": {
+      "type": "string",
+      "value": "[format('{0}webhooks?token={1}%2b{2}%3d', substring(replace(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.jrds.', '.webhook.'), 0, add(indexOf(reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2023-11-01').automationHybridServiceUrl, '.azure-automation.net/'), 25)), variables('webhookTokenPart9'), variables('webhookTokenPart10'))]"
+    },
+    "sqlServerFqdn": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.DBforMySQL/flexibleServers', parameters('serverName'))).fullyQualifiedDomainName]"
+    },
+    "appServiceWebAddress": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('appName'))).defaultHostName]"
+    }
+  }
+
+}
