@@ -90,7 +90,21 @@ Within Azure
 .EXAMPLE
 N/A
 #>
-
+<#PSScriptInfo
+.VERSION 10.1
+.GUID 4bc67c81-0a03-4699-8313-3f31a9ec06ab
+.AUTHOR AndrewTaylor
+.COMPANYNAME 
+.COPYRIGHT GPL
+.TAGS intune endpoint MEM environment
+.LICENSEURI https://github.com/andrew-s-taylor/public/blob/main/LICENSE
+.PROJECTURI https://github.com/andrew-s-taylor/public
+.ICONURI 
+.EXTERNALMODULEDEPENDENCIES
+.REQUIREDSCRIPTS 
+.EXTERNALSCRIPTDEPENDENCIES 
+.RELEASENOTES
+#>
 
 
 ##################################################################################################################################
