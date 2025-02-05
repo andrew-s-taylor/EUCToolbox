@@ -1,5 +1,5 @@
 <#PSScriptInfo
-.VERSION 1.0.0
+.VERSION 2.0.0
 .GUID 66b58c98-d81c-45e6-a97a-1d1074592f35
 .AUTHOR AndrewTaylor
 .DESCRIPTION Creates a daily report of expiring app registrations, apple certs and much more
@@ -25,12 +25,13 @@ Tenant, AppID, Secret, Email and Sendgrid token
 .OUTPUTS
 Sends an email
 .NOTES
-  Version:        1.0.0
+  Version:        2.0.0
   Author:         Andrew Taylor
   Twitter:        @AndrewTaylor_2
   WWW:            andrewstaylor.com
   Creation Date:  08/08/2024
   Purpose/Change: Initial script development
+  Change 05/02/2025 - Added Duplicate license check
 .EXAMPLE
 N/A
 #>
@@ -618,6 +619,42 @@ Write-Output "Unused Licenses for Unused Users Checked"
 ##Count the unused licenses
 $oldrelease = $licensestorelease.count
 $jsonoutput | Add-Member -NotePropertyName "LicensesonOldUsers" -NotePropertyValue "$oldrelease"
+
+
+## Check if any users have multiple licenses with the same service plans within them
+write-output "Checking for users with multiple licenses having the same service plans"
+
+$usersWithMultipleLicenses = @()
+
+foreach ($user in $users) {
+    $userId = $user.id
+    $licenseDetailsUri = "https://graph.microsoft.com/v1.0/users/$userId/licenseDetails"
+    $licenseDetails = getallpagination -url $licenseDetailsUri
+
+    $servicePlans = @()
+    foreach ($license in $licenseDetails) {
+        $servicePlans += $license.servicePlans
+    }
+
+    $duplicateServicePlans = $servicePlans | Group-Object -Property servicePlanId | Where-Object { $_.Count -gt 1 }
+
+    if ($duplicateServicePlans) {
+        $userDetails = [pscustomobject]@{
+            UserPrincipalName = $user.userPrincipalName
+            DuplicateServicePlans = ($duplicateServicePlans.group.servicePlanName | Select-Object -Unique) -join ", "
+            SkuId = $license.skuPartNumber
+        }
+        $usersWithMultipleLicenses += $userDetails
+    }
+}
+
+if ($usersWithMultipleLicenses) {
+    $duplicateLicensesOutput = $usersWithMultipleLicenses | ConvertTo-Html -Fragment
+} else {
+    $duplicateLicensesOutput = "No users with multiple licenses having the same service plans"
+}
+
+$jsonoutput | Add-Member -NotePropertyName "UsersWithDuplicateLicenses" -NotePropertyValue "$($usersWithMultipleLicenses.Count)"
 
 ##################################################################################################################################
 #################                                            Check Secure Score                                  #################
@@ -1468,7 +1505,7 @@ $Section2Body = 'These apps have been updated in your tenant:<br>' + $updatedapp
 $section3Head = 'Admin Alerts'
 $eventscontent_HTML = $eventscontent.Replace('<table>','<table id="t01">')
 $Section3Body = @"
-These are your admin alerts from the last 24 hours:<br>'
+These are your admin alerts from the last 24 hours:<br>
 $eventscontent_HTML
 "@
 $section4Head = "License Count"
@@ -1477,6 +1514,9 @@ $Section4Body = 'Here is your tenant license count:<br>' + $licensecount_HTML
 $section5Head = "Licenses on old users"
 $licensesoutput_HTML = $licensesoutput.Replace('<table>','<table id="t01">')
 $Section5Body = 'These users have not been seen for 90 days and have active licenses:<br>' + $licensesoutput_HTML
+$section27head = "Duplicated licenses on users"
+$duplicenseoutput_html = $duplicateLicensesOutput.Replace('<table>','<table id="t01">')
+$Section27Body = 'These users have duplicate licenses assigned:<br>' + $duplicenseoutput_html
 $section6Head = "Secure Score"
 $scoreoutput_HTML = $scoreoutput.Replace('<table>','<table id="t01">')
 $Section6Body = 'Your secure score is:<br>' + $scoreoutput_HTML
@@ -1585,6 +1625,8 @@ $EmailContent = $EmailContent.Replace('$Section25Head',$section25Head)
 $EmailContent = $EmailContent.Replace('$Section25Body',$Section25Body)
 $EmailContent = $EmailContent.Replace('$Section26Head',$section26Head)
 $EmailContent = $EmailContent.Replace('$Section26Body',$Section26Body)
+$EmailContent = $EmailContent.Replace('$Section27Head',$section27Head)
+$EmailContent = $EmailContent.Replace('$Section27Body',$Section27Body)
 $EmailContent = $EmailContent.Replace('$LinkSponsors',$footerhtml)
 
 if ($portal -ne "yes") {
