@@ -1318,6 +1318,253 @@ $serviceoutput = $servicehealth.ToString()
 $jsonoutput | Add-Member -NotePropertyName "ServiceHealth" -NotePropertyValue "$serviceoutput"
 
 ##################################################################################################################################
+#################                                   Check Connectors                                             #################
+##################################################################################################################################
+
+    ##Create a PS Object for storing any data
+    $connectorsout = New-Object PSObject
+    
+    ##Windows enterprise certificate
+        $url = "https://graph.microsoft.com/beta/deviceAppManagement/enterpriseCodeSigningCertificates"
+        $codesigning = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##If empty, return null
+        if (!$codesigning) {
+            $codesigningout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows Enterprise Certificate" -Value $codesigningout
+        }
+        ##If not, check the status and expirationDateTime
+        else {
+            ##If status does not equal provisioned or expiration has passed, flag as false
+            if ($codesigning.Status -ne "Provisioned" -or $codesigning.ExpirationDateTime -lt (Get-Date)) {
+                $codesigningout = "Error"
+                ##Add to $connectorsout
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows Enterprise Certificate" -Value $codesigningout
+            }
+        }
+
+    ##Microsoft Endpoint Configuration Manager
+        $url = "https://graph.microsoft.com/beta/deviceManagement/tenantAttachRBAC/getState"
+        $memcm = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).enabled
+        if ($memcm -eq $false) {
+            $memcmout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Microsoft Endpoint Configuration Manager" -Value $memcmout
+        }
+        else {
+            $memcmout = "Enabled without errors"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Microsoft Endpoint Configuration Manager" -Value $memcmout
+        }
+
+
+    ##Windows 365 Partner connectors
+        $url = "GET https://graph.microsoft.com/beta/deviceManagement/virtualEndpoint/externalPartnerSettings?`$select=id,partnerId,enableConnection"
+        $windows365 = Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject
+        ##Check if it's empty
+        if (!$windows365) {
+            $windows365out = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows 365 Partner Connectors" -Value $windows365out
+        }
+        ##Loop through and check that enabledConnection is true
+        else {
+            $windows365check = $windows365 | Where-Object { $_.enableConnection -eq $true }
+            ##If it's not, flag as false
+            if ($windows365check -eq $null) {
+                $windows365out = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows 365 Partner Connectors" -Value $windows365out
+            }
+            else {
+                $windows365out = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows 365 Partner Connectors" -Value $windows365out
+            }
+        }
+
+    ##Windows Licensing
+        $url = "https://graph.microsoft.com/beta/deviceManagement/dataProcessorServiceForWindowsFeaturesOnboarding"
+        $windowslicensing = Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject
+        $connectorsout | Add-Member -MemberType NoteProperty -Name "Windows Enterprise Licensed" -Value $windowslicensing.hasValidWindowsLicense
+        $connectorsout | Add-Member -MemberType NoteProperty -Name "Data Processing Enabled" -Value $windowslicensing.areDataProcessorServiceForWindowsFeaturesEnabled
+
+    ##Managed Google Play
+        $url = "https://graph.microsoft.com/beta/deviceManagement/mobileThreatDefenseConnectors?`$select=id,lastHeartbeatDateTime,partnerState,androidEnabled,iosEnabled,windowsEnabled,macEnabled,androidMobileApplicationManagementEnabled,iosMobileApplicationManagementEnabled,windowsMobileApplicationManagementEnabled"
+        $googleplay = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Loop through and check partnerState is available and heartbeat is within last 48 hours on at least one
+        $googleplaycheck = $googleplay | Where-Object { $_.partnerState -eq "available" -and $_.lastHeartbeatDateTime -gt (Get-Date).AddDays(-2) }
+        ##If it's empty, flag as false
+        if ($googleplaycheck -eq $null) {
+            $googleplayout = "Error"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Managed Google Play" -Value $googleplayout
+        }
+        else {
+            $googleplayout = "Enabled without errors"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Managed Google Play" -Value $googleplayout
+        }
+
+    ##Chrome Enterprise
+        $url = "https://graph.microsoft.com/beta/deviceManagement/chromeOSOnboardingSettings"
+        $chrome = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Check if onboardingStatus is unknown (not used)
+        $chromeused = $chrome | Where-Object { $_.onboardingStatus -ne "unknown" }
+        if ($chromeused -eq $null) {
+            $chomeoutput = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Chrome Enterprise" -Value $chomeoutput
+        }
+        else {
+            $chromecheck = $chrome | Where-Object { $_.onboardingStatus -ne "onboarded" -or $_.lastDirectorySyncDateTime -gt (Get-Date).AddDays(-2) }
+            ##If it's empty, flag as false
+            if ($chromecheck -eq $null) {
+                $chomeoutput = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Chrome Enterprise" -Value $chomeoutput
+            }
+            else {
+                $chomeoutput = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Chrome Enterprise" -Value $chomeoutput
+            }
+        }
+
+
+    ##Firmware over-the-air (Zebra)
+        $url = "https://graph.microsoft.com/beta/deviceManagement/zebraFotaConnector"
+        $zebra = Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject
+        ##If empty, it's not used
+        if ($zebra -eq $null) {
+            $zebraout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Firmware Over-the-Air (Zebra)" -Value $zebraout
+        }
+        ##Otherwise check lastSyncDateTime
+        else {
+            $zebracheck = $zebra | Where-Object { $_.lastSyncDateTime -gt (Get-Date).AddDays(-2) }
+            ##If it's empty, flag as false
+            if ($zebracheck -eq $null) {
+                $zebraout = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Firmware Over-the-Air (Zebra)" -Value $zebraout
+            }
+            else {
+                $zebraout = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Firmware Over-the-Air (Zebra)" -Value $zebraout
+            }
+        }
+
+    ##Microsoft Defender for Endpoint
+        $url = "https://graph.microsoft.com/beta/deviceManagement/mobileThreatDefenseConnectors?$select=id,lastHeartbeatDateTime,partnerState,androidEnabled,iosEnabled,windowsEnabled,macEnabled,androidMobileApplicationManagementEnabled,iosMobileApplicationManagementEnabled,windowsMobileApplicationManagementEnabled"
+        $defender = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        $defendercheck = $defender | Where-Object { $_.partnerState -eq "available" -and $_.lastHeartbeatDateTime -gt (Get-Date).AddDays(-2) }
+        ##If it's empty, flag as false
+        if ($defendercheck -eq $null) {
+            $defenderout = "Error"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Defender for Endpoint" -Value $defenderout
+        }
+        else {
+            $defenderout = "Enabled without errors"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Defender for Endpoint" -Value $defenderout
+        }
+
+
+    ##Mobile Threat Defense
+        $url = "https://graph.microsoft.com/beta/deviceManagement/mobileThreatDefenseConnectors?`$select=id,lastHeartbeatDateTime,partnerState,androidEnabled,iosEnabled,windowsEnabled,macEnabled,androidMobileApplicationManagementEnabled,iosMobileApplicationManagementEnabled,windowsMobileApplicationManagementEnabled"
+        $mtd = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Check lastHeartbeatDateTime is within last 48 hours
+        $mtdcheck = $mtd | Where-Object { $_.lastHeartbeatDateTime -gt (Get-Date).AddDays(-2) }
+        ##If it's empty, flag as false
+        if ($mtdcheck -eq $null) {
+            $mtdout = "Error"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Mobile Threat Defense" -Value $mtdout
+        }
+        else {
+            $mtdout = "Enabled without errors"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Mobile Threat Defense" -Value $mtdout
+        }
+
+    ##Partner compliance management
+        $url = "https://graph.microsoft.com/beta/deviceManagement/complianceManagementPartners"
+        $compliance = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Loop through and check partnerState is not unknown
+        $compliancecheck1 = $compliance | Where-Object { $_.partnerState -ne "unknown" }
+        ##If it's empty, flag as false
+        if (!$compliancecheck1) {
+            $complianceout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "Partner Compliance Management" -Value $complianceout
+        }
+        else {
+            ##Check if partnerState is not enabled, or lastHeartbeatDateTime is older than 48 hours
+            $compliancecheck2 = $compliance | Where-Object { $_.partnerState -ne "enabled" -or $_.lastHeartbeatDateTime -lt (Get-Date).AddDays(-2) }
+            ##If it's empty, flag as false
+            if ($compliancecheck2 -eq $null) {
+                $complianceout = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Partner Compliance Management" -Value $complianceout
+            }
+            else {
+                $complianceout = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "Partner Compliance Management" -Value $complianceout
+            }
+        }
+    ##TeamViewer connector
+        $url = "https://graph.microsoft.com/beta/deviceManagement/remoteAssistancePartners"
+        $teamviewer = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Check if onboardingStatus is notOnboarded
+        if ($teamviewer.onboardingStatus -eq "notOnboarded") {
+            $teamviewerout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "TeamViewer Connector" -Value $teamviewerout
+        }
+        else {
+##Check if lastConnectionDateTime is less than 48 hours
+            $teamviewercheck2 = $teamviewer | Where-Object { $_.lastConnectionDateTime -gt (Get-Date).AddDays(-2) }
+            ##If it's empty, flag as false
+            if ($teamviewercheck2 -eq $null) {
+                $teamviewerout = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "TeamViewer Connector" -Value $teamviewerout
+            }
+            else {
+                $teamviewerout = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "TeamViewer Connector" -Value $teamviewerout
+            }
+}
+
+    ##ServiceNow connector
+        $url = "https://graph.microsoft.com/beta/deviceManagement/serviceNowConnections"
+        $servicenow = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+        ##Check if empty
+        if (!$servicenow) {
+            $servicenowout = "Not Enabled"
+            $connectorsout | Add-Member -MemberType NoteProperty -Name "ServiceNow Connector" -Value $servicenowout
+        }
+        ##Check if connection status is enabled and last queried date is within 48 hours
+        else {
+            $servicenowcheck = $servicenow | Where-Object { $_.serviceNowConnectionStatus -eq "enabled" -and $_.lastQueriedDateTime -gt (Get-Date).AddDays(-2) }
+            ##If it's empty, flag as false
+            if ($servicenowcheck -eq $null) {
+                $servicenowout = "Error"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "ServiceNow Connector" -Value $servicenowout
+            }
+            else {
+                $servicenowout = "Enabled without errors"
+                $connectorsout | Add-Member -MemberType NoteProperty -Name "ServiceNow Connector" -Value $servicenowout
+            }
+        }
+
+    ##Certificate connectors
+        $url = "https://graph.microsoft.com/beta/deviceManagement/ndesConnectors"
+        $certificates = (Invoke-MgGraphRequest -Uri $url -Method Get -OutputType PSObject).value
+                ##Check if empty
+                if (!$certificates) {
+                    $ndes = "Not Enabled"
+                    $connectorsout | Add-Member -MemberType NoteProperty -Name "NDES Connector" -Value $ndes
+                }
+                ##Check if state is active and last connection date is within 48 hours
+                else {
+                    $ndescheck = $certificates | Where-Object { $_.state -eq "active" -and $_.lastConnectionDateTime -gt (Get-Date).AddDays(-2) }
+                    ##If it's empty, flag as false
+                    if ($ndescheck -eq $null) {
+                        $ndes = "Error"
+                        $connectorsout | Add-Member -MemberType NoteProperty -Name "NDES Connector" -Value $ndes
+                    }
+                    else {
+                        $servicenow = "Enabled without errors"
+                        $connectorsout | Add-Member -MemberType NoteProperty -Name "NDES Connector" -Value $ndes
+                    }
+                }
+
+$connectorshtml = $connectorsout | ConvertTo-Html -Fragment
+
+##################################################################################################################################
 #################                                Feature Update Checks                                           #################
 ##################################################################################################################################
 
@@ -1564,6 +1811,8 @@ $section21Head = "Service Health Issues"
 $section21Body = $healthissueoutput.Replace('<table>','<table id="t01">')
 $section22Head = "Service Health Messages"
 $section22Body = $healthoutput.Replace('<table>','<table id="t01">')
+$section28Head = "Connectors Status"
+$section28Body = $connectorshtml.Replace('<table>','<table id="t01">')
 $section23Head = "Feature Update Policy Errors"
 $section23Body = $featureupdateoutput
 $section24Head = "Quality Update Policy Errors"
@@ -1627,6 +1876,8 @@ $EmailContent = $EmailContent.Replace('$Section26Head',$section26Head)
 $EmailContent = $EmailContent.Replace('$Section26Body',$Section26Body)
 $EmailContent = $EmailContent.Replace('$Section27Head',$section27Head)
 $EmailContent = $EmailContent.Replace('$Section27Body',$Section27Body)
+$EmailContent = $EmailContent.Replace('$Section28Head',$section28Head)
+$EmailContent = $EmailContent.Replace('$Section28Body',$Section28Body)
 $EmailContent = $EmailContent.Replace('$LinkSponsors',$footerhtml)
 
 if ($portal -ne "yes") {
