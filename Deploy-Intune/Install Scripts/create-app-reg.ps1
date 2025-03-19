@@ -134,10 +134,10 @@ $appsecret = $ClientSecret2.SecretText
 ###############################################################################
 #Add Delegated Permission
 $params = @{
-    RequiredResourceAccess = @(
-        @{
-            ResourceAppId = "00000003-0000-0000-c000-000000000000"
-            $permissions = @(
+	RequiredResourceAccess = @(
+		@{
+			ResourceAppId = "00000003-0000-0000-c000-000000000000"
+			ResourceAccess = @(
 				@{
 					Id = "40b534c3-9552-4550-901b-23879c90bcf9"
 					Type = "Scope"

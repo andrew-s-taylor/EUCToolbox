@@ -6,6 +6,7 @@
 First you will need an app-reg with the appropriate permissions which can be created by running "create-app-reg.ps1"
 [create-app-reg.ps1](https://raw.githubusercontent.com/andrew-s-taylor/EUCToolbox/refs/heads/main/Intune-Manage/Install%20Scripts/create-app-reg.ps1)
   Make a note of the client ID and secret, you will need these later
+  When prompted for a domain, enter the domain name where the app will be hosted, this will populate the redirect URI
 
 Second you want to deploy the resources to Azure by clicking this link:
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fandrew-s-taylor%2FEUCToolbox%2Fmain%2FIntune-Manage%2FInstall%2520Scripts%2Farm-template.json)
@@ -26,9 +27,7 @@ Add these and you are now up and running
 App Reg:
 1) Create a new App Registration (multi-tenant if required) and make a note of the Application (client) ID
 2) Add the redirect URIs to Microsoft default values:
-- https://login.microsoftonline.com/common/oauth2/nativeclient
-- https://login.live.com/oauth20_desktop.srf
-- msal2afd3959-6ff7-400b-8cb3-4c4828166bf1://auth
+- https://{DOMAINNAME}/processor.php
 3) Add these API permissions (all Application type):
 - AppCatalog.ReadWrite.All
 - DeviceManagementApps.ReadWrite.All
