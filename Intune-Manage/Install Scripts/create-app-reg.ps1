@@ -159,7 +159,7 @@ function Get-RandomPassword {
 ###############################################################################
 #Create AAD Application
 ###############################################################################
-$AppName =  "IntuneBackupEUCToolbox"
+$AppName =  "IntuneManageEUCToolbox"
 $App = New-MgApplication -DisplayName $AppName -SignInAudience AzureADMultipleOrgs
 $APPObjectID = $App.Id
 
@@ -167,7 +167,7 @@ $APPObjectID = $App.Id
 #Add a ClientSecret
 ###############################################################################
 $passwordCred = @{
-    "displayName" = "IntuneBackupSecret"
+    "displayName" = "IntuneManageSecret"
     "endDateTime" = (Get-Date).AddMonths(+24)
 }
 $ClientSecret2 = Add-MgApplicationPassword -ApplicationId $APPObjectID -PasswordCredential $passwordCred
