@@ -179,117 +179,125 @@ $appsecret = $ClientSecret2.SecretText
 ###############################################################################
 #Add Delegated Permission
 $params = @{
-    RequiredResourceAccess = @(
-        @{
-            ResourceAppId = "00000003-0000-0000-c000-000000000000"
-            $permissions = @(
+	RequiredResourceAccess = @(
+		@{
+			ResourceAppId = "00000003-0000-0000-c000-000000000000"
+			ResourceAccess = @(
 				@{
 					Id = "40b534c3-9552-4550-901b-23879c90bcf9"
 					Type = "Scope"
-				}
+				},
 				@{
 					Id = "a8ead177-1889-4546-9387-f25e658e2a79"
 					Type = "Scope"
-				}
+				},
 				@{
 					Id = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
 					Type = "Scope"
-				}
+				},
 				@{
 					Id = "dc149144-f292-421e-b185-5953f2e98d7f"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "9a5d68dd-52b0-4cc2-bd40-abcf44ac3a30"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "b0afded3-3588-46d8-8b3d-9842eff778da"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "3b4349e1-8cf5-45a3-95b7-69d1751d3e6a"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "1138cb37-bd11-4084-a2b7-9f71582aeddb"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "78145de6-330d-4800-a6ce-494ff2d33d07"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "9241abd9-d0e6-425a-bd4f-47ba86e767a4"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "243333ab-4d21-40cb-a475-36241daa0842"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "e330c4f0-4170-414e-a55a-2f022ec2b57b"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "5ac13192-7ace-4fcf-b828-1a26f28068ee"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "19dbc75e-c2e2-444c-a770-ec69d8559fc7"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "7e05723c-0bb0-42da-be95-ae9f08a6e53c"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "62a82d76-70ea-41e2-9197-370581804d09"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "dbaae8cf-10b5-4b86-a4a1-f871c94c6695"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "498476ce-e0fe-48b0-b801-37ba7e2685c6"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "246dd0d5-5bd0-4def-940b-0421030a5b68"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "01c0a623-fc9b-48e9-b794-0756f8e8f067"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "a402ca1c-2696-4531-972d-6e5ee4aa11ea"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "1c6e93a6-28e2-4cbb-9f64-1a46a821124d"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "230c1aed-a721-4c5d-9cb4-a90514e508ef"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "9e3f62cf-ca93-4989-b6ce-bf83c28f9fe8"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "bf394140-e372-4bf9-a898-299cfc7564e5"
 					Type = "Role"
-				}
+				},
 				@{
 					Id = "332a536c-c7ef-4017-ab91-336970924f0d"
 					Type = "Role"
+				},
+				@{
+					Id = "1b620472-6534-4fe6-9df2-4680e8aa28ec"
+					Type = "Role"
+				},
+				@{
+					Id = "79c261e0-fe76-4144-aad5-bdc68fbe4037"
+					Type = "Role"
 				}
-            )
-        }
-    )
+			)
+		}
+	)
 }
 Update-MgApplication -ApplicationId $APPObjectID -BodyParameter $params
 
