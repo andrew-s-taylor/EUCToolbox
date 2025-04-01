@@ -512,7 +512,14 @@ foreach ($license in $licenses) {
 $skuNamePretty = ($translationTable | Where-Object {$_.GUID -eq $license.skuId} | Sort-Object Product_Display_Name -Unique)."ï»¿Product_Display_Name"
 
 $available = (($license.prepaidUnits.enabled) - ($license.consumedUnits))
-if (($skuNamePretty -notmatch "free") -and ($skuNamePretty -notmatch "trial")) {
+$excludedLicenses = @(
+    "free", 
+    "trial",
+    "Microsoft Fabric Free",
+    "Microsoft Teams Phone Resource Accounts",
+    "Microsoft Teams Phone Resource Account"
+    )
+if ($excludedLicenses -notcontains $skuNamePretty) {
 $objectdetailstotal = [pscustomobject]@{
     name = $skuNamePretty
     total = $license.prepaidUnits.enabled
@@ -522,7 +529,7 @@ $objectdetailstotal = [pscustomobject]@{
 $total += $objectdetailstotal
 }
 
-if (($available -gt 0) -and ($skuNamePretty -notmatch "free") -and ($skuNamePretty -notmatch "trial")) {
+if (($available -gt 0) -and ($excludedLicenses -notcontains $skuNamePretty)) {
 
 $licensename = $skuNamePretty
 Write-Output "$licensename has $available unused licenses"
